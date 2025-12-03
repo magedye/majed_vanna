@@ -23,8 +23,10 @@ class LLMLog(LlmMiddleware):
     async def after_llm_response(self,r,res): print("[LLM-RESP]"); return res
 
 class Prompt(SystemPromptBuilder):
-    async def build_system_prompt(self,u,t,c):
-        return f"User:{u.email}\nTimezone:{c.get('timezone')}"
+    async def build_system_prompt(self, user, tools, conversation=None):
+        tz = user.metadata.get("timezone", "UTC")
+        email = getattr(user, "email", "unknown")
+        return f"User:{email}\nTimezone:{tz}"
 
 class DummyObservability(ObservabilityProvider):
     async def record_metric(
