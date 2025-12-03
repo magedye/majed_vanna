@@ -140,7 +140,7 @@ pip install -r requirements.txt
 ## 3️⃣ تشغيل التطبيق:
 
 ```
-python app/main.py
+python -m app.main
 ```
 
 ## 4️⃣ الوصول إلى الواجهة:
