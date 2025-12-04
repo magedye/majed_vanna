@@ -15,8 +15,8 @@ from app.agent.hooks import lifecycle_hooks
 from app.agent.enrichers import context_enrichers
 from app.agent.workflow import workflow_handler
 from app.utils.logger import setup_logger, log_perf, record_perf_sample
-from app.config import LLM_MAX_PROMPT_CHARS
-from app.config import LLM_MAX_PROMPT_CHARS
+from app.config import LLM_MAX_PROMPT_CHARS, LLM_CONFIG, LLM_PROVIDER
+from app.agent.implementation import LocalVanna
 
 class FileAuditLogger(AuditLogger):
     def __init__(self,path="audit.log"): self.path=path
@@ -24,14 +24,49 @@ class FileAuditLogger(AuditLogger):
         with open(self.path,"a") as f: f.write(str(e.__dict__)+"\n")
 
 perf_logger = setup_logger(__name__)
+kb_config = {
+    "path": "./chroma_db",
+    "api_key": "lm-studio",
+    "api_base": LLM_CONFIG.get(LLM_PROVIDER, {}).get("base_url", "http://localhost:1234/v1"),
+    "model": LLM_CONFIG.get(LLM_PROVIDER, {}).get("model", "gemma-3n"),
+}
+knowledge_base = LocalVanna(config=kb_config)
+
+
+def _collect_schema_text(limit_chars: int = 8000) -> str:
+    try:
+        df = knowledge_base.get_training_data()
+        if df is None or df.empty:
+            return ""
+        if "type" in df.columns and "text" in df.columns:
+            ddls = df[df["type"] == "ddl"]["text"].dropna().tolist()
+        elif "sql" in df.columns:
+            ddls = df["sql"].dropna().tolist()
+        else:
+            ddls = df.to_string().splitlines()
+        schema = "\n\n".join(ddls)
+        if len(schema) > limit_chars:
+            schema = schema[:limit_chars]
+        return schema
+    except Exception as e:
+        log_perf(perf_logger, "schema.load.error", {"error": str(e)})
+        return ""
 
 class LLMLog(LlmMiddleware):
     async def before_llm_request(self,r):
         r.metadata = r.metadata or {}
         r.metadata["perf_start"] = time.time()
 
-        # Prompt size logging / limiting (protect system messages; trim oldest history first)
+        # Schema injection
         messages = getattr(r, "messages", []) or []
+        if messages:
+            user_msg = messages[-1]
+            content = getattr(user_msg, "content", "") or ""
+            schema_text = _collect_schema_text()
+            if schema_text:
+                user_msg.content = f"Use this schema:\n{schema_text}\n\nQuestion: {content}"
+
+        # Prompt size logging / limiting (protect system messages; trim oldest history first)
         system_msgs = [m for m in messages if getattr(m, "role", "") == "system"]
         history_msgs = [m for m in messages if getattr(m, "role", "") != "system"]
 

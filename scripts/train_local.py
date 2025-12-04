@@ -10,7 +10,7 @@ class LocalVanna(ChromaDB_VectorStore, OpenAI_Chat):
         ChromaDB_VectorStore.__init__(self, config={"path": "./chroma_db"})
         # 2. Init LLM (LM Studio)
         client = OpenAI(api_key=config.get("api_key"), base_url=config.get("api_base"))
-        OpenAI_Chat.__init__(self, openai_client=client, config={"model": config.get("model")})
+        OpenAI_Chat.__init__(self, client=client, config={"model": config.get("model")})
 
 
 # Config for LM Studio

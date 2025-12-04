@@ -1,0 +1,6 @@
+id,product,region,amount,sale_date
+3,Gadget,East,1430.75,2025-01-03
+1,Widget,North,1200.5,2025-01-01
+4,Gadget,West,1110.2,2025-01-04
+2,Widget,South,980.0,2025-01-02
+5,Doohickey,North,875.0,2025-01-05

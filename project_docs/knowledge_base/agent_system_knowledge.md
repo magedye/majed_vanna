@@ -30,6 +30,12 @@ Enable secure, enterprise-grade natural language analytics.
 - Tests cover input validation, prompt safety, SQL validation, error handling, agent pipeline (stub LLM), and sqlite RunSql smoke.
 - Test env defaults to DB_PROVIDER=sqlite for isolation.
 
+#### **11. Operational Notes (Phase 3.A - Visualization Backend)**
+- SafeVisualizer wraps VisualizeDataTool and writes chart outputs to `app/static/charts/<user_hash>/` with basename sanitization; filenames and directories are traversal-safe.
+- Chart payloads (Plotly JSON) are persisted as `chart_<ts>.json` alongside any generated CSVs; user hash uses SHA256 of `context.user.id` truncated to 16 chars.
+- Visualization relies on LocalFileSystem sandbox; LLM roundtrip latency remains high on local hardware (~20–200s).
+- Next step (Phase 3.B): expose `app/static/charts` via FastAPI StaticFiles and return renderable Plotly payloads/URLs to the UI.
+
 #### **3. Execution Phases**
 The agent must always operate inside the currently authorized phase.
 

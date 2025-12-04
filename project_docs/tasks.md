@@ -5,94 +5,91 @@ Maintained by: Autonomous Agent (under contract)
 Last Updated: {auto-update by agent}
 
 Legend
-- ✅ Done
-- 🚧 In Progress
-- ⏳ Pending
-- ⛔ Blocked / Requires Human Approval
+- ƒo. Done
+- dYs In Progress
+- ƒ?3 Pending
+- ƒ>" Blocked / Requires Human Approval
 
 ------------------------------------------------------------
-Phase 1 — Core Stabilization (✅ 5/5 complete)
+Phase 1 ƒ?" Core Stabilization (ƒo. 5/5 complete)
 
-1.A Input Safety Layer — ✅ Done
+1.A Input Safety Layer ƒ?" ƒo. Done
 - Message sanitization
 - Metadata validation
 - ID rules
 - FastAPI middleware integration
 - SafeChatHandler activation
 
-1.B SQL Safety Layer — ✅ Done
+1.B SQL Safety Layer ƒ?" ƒo. Done
 - Single-statement enforcement
 - Block destructive keywords
 - Comment + tautology filters
 - SafeRunSqlTool wrapper
 
-1.C Prompt Safety Layer — ✅ Done
+1.C Prompt Safety Layer ƒ?" ƒo. Done
 - Regex/rule filters
 - Meta-instruction blocks
 - Control-char stripping
 
-1.D Unified Error Handling — ✅ Done
+1.D Unified Error Handling ƒ?" ƒo. Done
 - API-level handlers
 - User-friendly error responses
 - Internal logging hooks
 
-1.E Secrets & Environment Hardening — ✅ Done
+1.E Secrets & Environment Hardening ƒ?" ƒo. Done
 - Secrets moved to .env
 - Hardcoded DSNs removed
 - Env validation added
 
 ------------------------------------------------------------
-Phase 2 — Stabilization II
+Phase 2 ƒ?" Stabilization II (ƒo. 3/3 complete)
 
-2.A Operational Stabilization — ✅ Done
+2.A Operational Stabilization ƒ?" ƒo. Done
 - Oracle connection pooling (SessionPool)
 - SQLite testing mode stability (baseline)
 - Health readiness endpoint
 - Lightweight request rate limiting
 
-2.B Performance Stabilization — ✅ Done
+2.B Performance Stabilization ƒ?" ƒo. Done
 - LLM latency path measurement
 - DB roundtrip metrics
 - Perf logs and `/health/perf` endpoint with averages
+- Context injection adapter wired to local ChromaDB + LM Studio
 
-2.C Test Coverage — ✅ Done
+2.C Test Coverage ƒ?" ƒo. Done
 - 17 passing tests (input, prompt, SQL validation, error handling, agent pipeline stub, sqlite run_sql)
 - pytest + pytest-asyncio installed
+- Added context injection tests (schema injection, truncation protection, logging)
 - Coverage target baseline achieved (~smoke coverage)
 
-2.C Test Coverage — ⏳ Pending
-- 20–30% unit coverage
-- ask() pipeline coverage
-- Oracle/SQLite integration tests
+------------------------------------------------------------
+Phase 3 ƒ?" UI / UX Enhancements
+3.A Secure Visualization Backend ƒo. Done
+- SafeVisualizer writes to sandboxed `app/static/charts/<user_hash>/`
+- Filename sanitization and user hashing guard traversal
+- Chart payload persisted as JSON for reuse
+
+3.B Frontend Visualization Integration ƒ?" ƒ?3 Pending
+- Serve chart assets over HTTP
+- Return Plotly payloads/URLs the UI can render
+- Ensure LLM/tool response links to saved charts
 
 ------------------------------------------------------------
-Phase 3 — UI / UX Enhancements
-3.A Stateful Components — ⏳ Pending
-- UI state persistence
-- Progress components
-- Auto-refresh mechanics
-
-3.B Visualization Modules — ⏳ Pending
-- Plotly integrations
-- Data tables with pagination
-- Export helpers
-
-------------------------------------------------------------
-Phase 4 — Deployment & Runtime
-4.A Containerization — ⏳ Pending
+Phase 4 ƒ?" Deployment & Runtime
+4.A Containerization ƒ?" ƒ?3 Pending
 - Dockerfile refinement
 - Multi-stage builds
 
-4.B Nginx Layer — ⏳ Pending
+4.B Nginx Layer ƒ?" ƒ?3 Pending
 - Reverse proxy
 - Static asset handling
 
-4.C Service Installation — ⏳ Pending
+4.C Service Installation ƒ?" ƒ?3 Pending
 - Windows service scripts
 - Linux systemd integration
 
 ------------------------------------------------------------
-Cross-Phase Tasks (Always Active) — 🚧 Ongoing
+Cross-Phase Tasks (Always Active) ƒ?" dYs Ongoing
 - Maintain agent_system_knowledge.md
 - Update ADRs when decisions occur
 - Log behavioral changes
@@ -101,7 +98,7 @@ Cross-Phase Tasks (Always Active) — 🚧 Ongoing
 ------------------------------------------------------------
 Summary Dashboard
 - Phase 1: 5/5 completed
-- Phase 2: 1/3 completed
-- Phase 3: 0/2 completed
+- Phase 2: 3/3 completed
+- Phase 3: 1/2 completed
 - Phase 4: 0/3 completed
 - Cross-phase operations: active
