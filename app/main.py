@@ -11,6 +11,7 @@ from vanna.servers.fastapi import VannaFastAPIServer
 from app.api.router import api_router
 from app.agent.builder import agent
 from app.agent.port_guard import find_available_port
+from app.agent.input_validation import InputValidationMiddleware, SafeChatHandler
 from app.config import (
     HOST,
     PORT,
@@ -35,7 +36,9 @@ def start():
         "static_folder": "static",
     }
     server = VannaFastAPIServer(agent=agent, config=config)
+    server.chat_handler = SafeChatHandler(agent)
     app = server.create_app()
+    app.add_middleware(InputValidationMiddleware)
     app.include_router(api_router, prefix="/api")
 
     port = find_available_port(PORT) if DEBUG else PORT
