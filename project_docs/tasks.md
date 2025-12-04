@@ -69,10 +69,10 @@ Phase 3 ƒ?" UI / UX Enhancements
 - Filename sanitization and user hashing guard traversal
 - Chart payload persisted as JSON for reuse
 
-3.B Frontend Visualization Integration ƒ?" ƒ?3 Pending
-- Serve chart assets over HTTP
-- Return Plotly payloads/URLs the UI can render
-- Ensure LLM/tool response links to saved charts
+3.B Frontend Visualization Integration ƒo. Done
+- Charts exposed via FastAPI StaticFiles at `/charts`
+- SafeVisualizer returns `chart_url` metadata for saved outputs
+- Inline ChartComponent preserved for immediate rendering
 
 ------------------------------------------------------------
 Phase 4 ƒ?" Deployment & Runtime
@@ -99,6 +99,6 @@ Cross-Phase Tasks (Always Active) ƒ?" dYs Ongoing
 Summary Dashboard
 - Phase 1: 5/5 completed
 - Phase 2: 3/3 completed
-- Phase 3: 1/2 completed
+- Phase 3: 2/2 completed
 - Phase 4: 0/3 completed
 - Cross-phase operations: active

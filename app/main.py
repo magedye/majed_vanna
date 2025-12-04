@@ -7,6 +7,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from vanna.servers.fastapi import VannaFastAPIServer
+from fastapi.staticfiles import StaticFiles
 
 from app.api.router import api_router
 from app.agent.builder import agent
@@ -42,6 +43,7 @@ def start():
     server = VannaFastAPIServer(agent=agent, config=config)
     server.chat_handler = SafeChatHandler(agent)
     app = server.create_app()
+    app.mount("/charts", StaticFiles(directory="app/static/charts"), name="charts")
     app.add_middleware(InputValidationMiddleware)
     app.add_middleware(
         RateLimitMiddleware,
