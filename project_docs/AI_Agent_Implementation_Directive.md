@@ -1,324 +1,352 @@
-```
-project_docs/AI_Agent_Implementation_Directive.md
-```
+AI AGENT IMPLEMENTATION DIRECTIVE — MAJED VANNA PROJECT
+Authoritative Execution Blueprint for the Autonomous Agent
 
-This is the **final authoritative version** that your AI Agent MUST follow.
-You may copy & paste it directly into the file without modification.
+Version: 1.1 — January 2026
+Status: Active
+Scope: Mandatory for all automated development inside the Majed Vanna project
 
----
+1. Purpose of This Directive
 
-# 🚀 **AI AGENT IMPLEMENTATION DIRECTIVE — MAJED VANNA PROJECT**
+This document defines the only permitted execution boundaries for the autonomous AI Agent responsible for development, stabilization, and enhancement of the Majed Vanna Enterprise System.
 
-### **Final Official Directive (Security Mode, Oracle Priority, Full Vanna Features)**
+It specifies:
 
-### **Version: 1.0 — December 2025**
+Allowed and forbidden operations
 
----
+Phase-based execution workflow
 
-## **1. Overview**
+Security and safety hard requirements
 
-This directive defines the *only* authorized actions the AI Agent may perform inside the Majed Vanna project.
-The purpose is to stabilize the system, enforce core security, prepare for later enhancements, and maintain full compatibility with the Vanna AI framework.
+Integration rules for Oracle, SQLite, LM Studio, and Vanna
 
-The agent MUST follow this directive strictly and may NOT act outside of these boundaries.
+Documentation, audit, and compliance duties
 
----
+The agent MUST treat this directive as law and MUST NOT act outside its scope.
 
-# **2. Project Database Rules**
+2. Database Architecture Rules
+✔ Primary Database (MANDATORY): Oracle
 
-### ✔ **Primary Database (MANDATORY): Oracle**
+Oracle is the official production backend.
+All performance, stability, and metadata extraction work MUST target Oracle as the priority integration.
 
-The system MUST be optimized around Oracle as the main production database.
+✔ Secondary Database (Optional for Local Testing): SQLite
 
-### ✔ **Secondary Database (Optional for Local Testing Only): SQLite**
+SQLite may be used ONLY for:
 
-SQLite MAY be used for:
+Local development
 
-* Local development
-* Unit tests
-* Feature introspection
+Rapid prototyping
 
-### ✖ Forbidden:
+Unit tests
 
-* Adding or maintaining any additional database providers
-* Introducing PostgreSQL, MySQL, MSSQL, or others
+Behavior simulation
 
----
+✖ The agent MUST NOT:
 
-# **3. LLM Provider Rules**
+Add support for PostgreSQL, MySQL, MSSQL, or any third-party database
 
-### ✔ **Default LLM Provider: LM Studio (OpenAI-compatible REST mode)**
+Introduce new DB abstraction layers
 
-The current integration MUST remain as-is.
+Modify the existing DB provider architecture
 
-### ✔ Allowed:
+3. LLM Provider Rules
+✔ Default LLM Provider: LM Studio (OpenAI-Compatible REST)
 
-* OpenAI-compatible models via LM Studio REST
-* Zero changes to API schema
+The agent MUST retain the current approach.
+The model must behave as an OpenAI-compatible endpoint.
 
-### ✖ Forbidden:
+Allowed:
 
-* Introducing additional LLM providers
-* Refactoring LLM architecture
-* Modifying model-selection logic
+LM Studio REST-compliant LLMs
 
----
+No schema modification
 
-# **4. Security Mode System**
+No provider switching logic added
 
-You MUST implement and respect this environment variable:
+Forbidden:
 
-```
-ENV_SECURITY_MODE=on   # Enable enhanced security
-ENV_SECURITY_MODE=off  # Default mode (basic security only)
-```
+Adding new LLM providers
 
----
+Changing model-selection architecture
 
-# **5. Security Requirements**
+Altering Vanna’s LLM execution mechanisms
 
-## **5.1 Basic Security (Always Active)**
+4. Security Mode System
 
-These MUST be enforced regardless of security mode:
+The system exposes a required environment variable:
 
-### ✔ SQL Injection Basic Protection
+ENV_SECURITY_MODE=on    # Enable enhanced security features
+ENV_SECURITY_MODE=off   # Default project mode
 
-* Parameterized queries only
-* No multi-statements
-* No execution of DROP/DELETE/ALTER unless explicitly whitelisted
 
-### ✔ Basic Prompt Injection Protection
+Enhanced features MUST only activate when explicitly set to "on".
 
-* Filter system-level overrides
-* Block role-specification attempts
-* Block query-shape modification prompts
+5. Security Requirements
 
-### ✔ Error Handling
+Security is mandatory and phase-gated.
 
-* Never expose stack traces to the user
-* All errors must map to safe generic messages
-* Internal details go to logs only
+5.1 Baseline Security (Always Active)
+Mandatory Rules:
+✔ SQL Safety
 
-### ✔ Secrets Management
+Single-statement queries only
 
-* No secrets in code
-* All secrets MUST come from `.env`
+Parameterized execution
 
-### ✔ Logging
+Destructive verbs blocked unless whitelisted
 
-* Logging MUST NOT reveal sensitive fields
+✔ Prompt Safety
 
----
+Block role-change attempts
 
-## **5.2 Enhanced Security (Active Only When ENV_SECURITY_MODE=on)**
+Block system override patterns
 
-When the variable is “on”, the agent MUST activate:
+Block instruction-hijacking phrases
 
-### 🔒 Advanced SQL Guard
+✔ Error Safety
 
-* AST parsing
-* Strict query-shape validation
-* Reject destructive or suspicious statements
+Never expose stack traces to users
 
-### 🔒 Advanced Prompt Guard
+Display safe, generic messages
 
-* NLP-based detection of adversarial intent
-* Context isolation
-* Output validation after LLM generation
+Write full technical errors only to logs
 
-### 🔒 Enhanced Logging
+✔ Secrets Management
 
-* Structured logs (JSON)
-* Correlation IDs
-* Sensitive field masking
+No secrets in source code
 
-### 🔒 Enhanced DB Safety
+All sensitive values MUST come from .env
 
-* Optional read-only enforcement
-* Strict fetch limits
-* Suspicious query detection
+✔ Logging Safety
 
-### ✔ Rule:
+No logging of passwords, tokens, credentials, or sensitive metadata
 
-**These features MUST NOT activate unless explicitly triggered by the environment variable.**
+5.2 Enhanced Security (Active Only When ENV_SECURITY_MODE=on)
 
----
+When security mode = on, the agent MUST enable:
 
-# **6. Vanna Feature Support Rules**
+🔒 Advanced SQL Guard
 
-The agent MUST preserve **all native Vanna features** without modification or omission:
+Lightweight AST analysis
 
-### ✔ Mandatory Supported Features
+Query-shape validation
 
-* `ask()`
-* `explain()`
-* `summarize_results()`
-* `generate_followup_questions()`
-* `get_results()`
-* `train(ddl, documentation, sql, df)`
-* SQL validation
-* Query execution
-* Vector store retrieval
-* Visualization features
-* All mixins (vector store + LLM + DB provider)
+Suspicious-statement detection
 
-### ✖ Forbidden:
+🔒 Advanced Prompt Guard
 
-* Removing or downgrading Vanna functionality
-* Wrapping or replacing core Vanna internals
-* Altering Vanna’s training pipeline
+Semantic pattern detection
 
----
+Anti-jailbreaking heuristics
 
-# **7. UI Rules**
+Output validation after LLM generation
 
-### ✔ Allowed:
+🔒 Enhanced DB Safety
 
-* Use ONLY built-in Vanna UI components
-* Serve default Vanna interface as-is
+Optional read-only execution
 
-### ✖ Forbidden:
+Mandatory fetch limits
 
-* Designing new UI screens
-* Extending the UI
-* Adding frontend frameworks
-* Modifying JavaScript components beyond bug fixes
+High-risk query detection
 
----
+🔒 Structured Logging
 
-# **8. Deployment Rules**
+JSON-formatted logs
 
-### ✔ Allowed Now:
+Correlation ID injection
 
-* Running locally via:
+Sensitive field masking
 
-  ```
-  uvicorn app.main:app --reload
-  ```
-* Testing endpoints
-* Verifying Oracle/SQLite integrations
+6. Vanna Framework Compliance
 
-### ✖ Forbidden Now:
+The agent MUST preserve all native Vanna features.
 
-* Docker deployment
-* Nginx reverse proxy
-* Linux/Windows service installation
-* Production server setup
+✔ Mandatory Features to Support
 
-### ✔ Allowed Later (after stabilization):
+ask()
 
-* Docker & Nginx
-* Windows/Linux services
+explain()
 
----
+summarize_results()
 
-# **9. Phase 1 Tasks (Authorized for Immediate Execution)**
+generate_followup_questions()
 
-The agent MUST execute the following tasks in order, and MUST NOT proceed until each step is completed and stable.
+get_results()
 
-### **Phase 1.A — Input Safety Layer**
+train(ddl, documentation, sql, df)
 
-* Add input validators
-* Enforce schema constraints
-* Sanitize natural language queries
+vector retrieval
 
-### **Phase 1.B — SQL Safety Layer**
+visualization tools
 
-* Implement parameterized queries
-* Add safety checks
-* Introduce SQL validation guard
+UI component streaming
 
-### **Phase 1.C — Prompt Safety Layer**
+✖ Forbidden Actions
 
-* Add regex-based & rule-based filters
-* Block meta-instruction patterns
+Rewriting Vanna internals
 
-### **Phase 1.D — Error Handling**
+Replacing core Vanna capabilities
 
-* Unified exception layer
-* User-safe responses
-* Internal logging for debugging
+Creating parallel LLM/DB workflows
 
-### **Phase 1.E — Secrets & Environment**
+Removing built-in Vanna UI components
 
-* Move ALL sensitive values to `.env`
-* Audit repository to ensure zero plaintext secrets
+7. UI Implementation Rules
+✔ Allowed:
 
----
+Serve the default embedded Vanna UI
 
-# **10. Phase 2 Tasks (Authorized After Phase 1 Completion)**
+Style adjustments or bug fixes ONLY
 
-### **Phase 2.A — Operational Stabilization**
+✖ Forbidden:
 
-* Fix connection pooling for Oracle
-* Stabilize SQLite testing mode
-* Add health checks
-* Add request rate limiting
+Building a new frontend
 
-### **Phase 2.B — Performance Stabilization**
+Introducing React, Vue, Angular, Svelte, etc.
 
-* Validate LLM latency path
-* Validate DB roundtrip performance
+Adding complex client-side frameworks
 
-### **Phase 2.C — Test Coverage**
+8. Deployment Rules
+Allowed NOW:
 
-* Achieve at least 20–30% unit test coverage
-* Ensure ask() pipeline is fully tested
-* Add integration tests for Oracle and SQLite
+Local development using:
 
----
+uvicorn app.main:app --reload
 
-# **11. Forbidden Actions (Critical Section)**
+Forbidden until Phase 4:
 
-The AI Agent MUST NOT:
+Docker
 
-* Add or begin implementing the semantic layer
-* Modify the semantic_model.yaml or metadata folder
-* Add cross-database abstraction logic
-* Add new LLM providers
-* Activate Docker or Nginx
-* Introduce architecture refactoring
-* Change folder structure
-* Remove any existing file unless explicitly instructed
-* Implement advanced RBAC or authentication
-* Add caching layers or complex middlewares
+Nginx reverse proxy
 
-If uncertain, the agent MUST stop and request clarification.
+System services (Windows/Linux)
 
----
+Production infra
 
-# **12. Completion Criteria Before Any Next Phase**
+9. Phase 1 — Authorized Tasks (Executable Now)
 
-The agent MUST NOT proceed to any next stage unless ALL of the following are true:
+The agent MUST execute Phase 1 tasks in order, and MUST pause after each phase.
 
-### ✔ Security
+Phase 1.A — Input Safety Layer
 
-* No SQL injection vulnerabilities
-* No prompt injection vulnerabilities
-* Error messages fully sanitized
+Validate payloads
 
-### ✔ Stability
+Enforce strict schemas
 
-* Oracle workflow stable
-* SQLite testing stable
-* No runtime crashes
-* ask(), explain(), summarize_results(), generate_followup_questions() all operational
+Sanitize user input
 
-### ✔ Testing
+Phase 1.B — SQL Safety Layer
 
-* Minimum test coverage reached
-* All tests pass reliably on repeated runs
+Validate SQL structure
 
-### ✔ Configuration
+Block multistatement execution
 
-* ENV_SECURITY_MODE toggle fully functional
+Introduce SQL guardrail
 
----
+Phase 1.C — Prompt Safety Layer
 
-# **13. End of Directive**
+Regex-based injection blocker
 
-Any action outside the scope of this directive is strictly prohibited unless the human project owner manually updates this file.
+Prompt structure enforcement
 
-The agent MUST read and respect this directive before making any change.
+Phase 1.D — Error Handling
 
----
+Unified exception handling
+
+User-safe response mapping
+
+Internal logging enhancements
+
+Phase 1.E — Secrets & Environment
+
+Remove ALL secrets from code
+
+Ensure configuration comes from .env
+
+Repository audit for plaintext secrets
+
+10. Phase 2 — Stabilization & Performance
+
+Starts only after explicit authorization.
+
+Phase 2.A — Operational Stabilization
+
+Oracle connection pooling
+
+SQLite mode refinement
+
+API health probes
+
+Phase 2.B — Performance Improvements
+
+LLM latency optimization
+
+Database query roundtrip tuning
+
+Phase 2.C — Test Coverage
+
+20–30% minimum coverage
+
+ask() pipeline tests
+
+DB providers integration tests
+
+11. Forbidden Actions (Critical Section)
+
+The agent MUST NOT:
+
+Modify architecture
+
+Change folder structure
+
+Begin semantic layer implementation
+
+Modify semantic_model.yaml
+
+Add new DB/LLM providers
+
+Deploy Docker/Nginx early
+
+Rewrite any Vanna-provided function
+
+Enable advanced RBAC
+
+Add caching layers
+
+Remove files without explicit instruction
+
+If uncertainty arises → STOP and request clarification.
+
+12. Completion Requirements Before Next Phase
+
+The agent MUST confirm:
+
+✔ Security
+
+Input, prompt, and SQL safety validated
+
+No leakage of sensitive information
+
+✔ Stability
+
+Oracle workflow stable
+
+SQLite dev-mode reliable
+
+No runtime crashes
+
+✔ Functionality
+
+ask(), explain(), summarize_results(), generate_followup_questions() work end-to-end
+
+✔ Configuration
+
+ENV_SECURITY_MODE toggles all enhanced systems correctly
+
+13. Final Rule
+
+Any action outside this directive is strictly prohibited unless the human owner updates this file.
+
+The agent MUST re-read this document before every change.
+
+✅ End of AI Agent Implementation Directive

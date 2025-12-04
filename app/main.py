@@ -12,6 +12,8 @@ from app.api.router import api_router
 from app.agent.builder import agent
 from app.agent.port_guard import find_available_port
 from app.agent.input_validation import InputValidationMiddleware, SafeChatHandler
+from app.api.error_handlers import register_exception_handlers
+from app.api.rate_limit import RateLimitMiddleware
 from app.config import (
     HOST,
     PORT,
@@ -20,6 +22,8 @@ from app.config import (
     DB_SQLITE,
     LLM_CONFIG,
     LLM_PROVIDER,
+    RATE_LIMIT_MAX_REQUESTS,
+    RATE_LIMIT_WINDOW_SECONDS,
 )
 from app.runtime import update_runtime
 
@@ -39,7 +43,13 @@ def start():
     server.chat_handler = SafeChatHandler(agent)
     app = server.create_app()
     app.add_middleware(InputValidationMiddleware)
+    app.add_middleware(
+        RateLimitMiddleware,
+        max_requests=RATE_LIMIT_MAX_REQUESTS,
+        window_seconds=RATE_LIMIT_WINDOW_SECONDS,
+    )
     app.include_router(api_router, prefix="/api")
+    register_exception_handlers(app)
 
     port = find_available_port(PORT) if DEBUG else PORT
     if DEBUG:
