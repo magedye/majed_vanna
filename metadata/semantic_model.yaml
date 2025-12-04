@@ -1,0 +1,51 @@
+semantic_model:
+  version: "1.0"
+
+  tables:
+    - tblAccounts
+    - tblTransactions
+    - tblUsers
+
+  columns:
+    tblAccounts:
+      - { column: "ID", type: "INTEGER" }
+      - { column: "AccountName", type: "TEXT" }
+      - { column: "Notes", type: "TEXT" }
+      - { column: "EnterUserID", type: "INTEGER" }
+      - { column: "EnterTime", type: "DATETIME" }
+
+    tblTransactions:
+      - { column: "ID", type: "INTEGER" }
+      - { column: "AccountID", type: "INTEGER" }
+      - { column: "Notes", type: "TEXT" }
+      - { column: "Amount", type: "REAL" }
+      - { column: "EnterUserID", type: "INTEGER" }
+      - { column: "EnterTime", type: "DATETIME" }
+
+    tblUsers:
+      - { column: "ID", type: "INTEGER" }
+      - { column: "UserName", type: "TEXT" }
+      - { column: "Notes", type: "TEXT" }
+      - { column: "EnterTime", type: "DATETIME" }
+
+  relationships:
+    - table: tblTransactions
+      column: AccountID
+      ref_table: tblAccounts
+      ref_column: ID
+
+    - table: tblTransactions
+      column: EnterUserID
+      ref_table: tblUsers
+      ref_column: ID
+
+    - table: tblAccounts
+      column: EnterUserID
+      ref_table: tblUsers
+      ref_column: ID
+
+  vocabulary: {}
+  rules: {}
+  metrics: {}
+  intents: {}
+  hierarchy: []

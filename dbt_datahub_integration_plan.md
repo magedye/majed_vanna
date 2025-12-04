@@ -1623,172 +1623,556 @@ A fully visual dependency graph for all tables.
 
 
 
-Below is a **complete, precise, execution-ready directive** you can attach directly to your AI Agent (system prompt, developer instructions, or agent workflow).
 
-This directive instructs the Agent to **execute the entire Oracle integration & metadata unification plan**, including:
 
-* Oracle metadata extraction
-* Multi-schema support
-* Type normalization
-* Relationship inference
-* Lineage graph generation
-* Unified semantic model building
-* Multi-provider architecture (dbt / DataHub / Direct DB / Oracle)
+Below is the **complete, expanded, production-grade technical directive** that incorporates your chosen option **(5) — Add the UI plan as a core part of the integration architecture**, transforming your system from a backend-only engine into a **full semantic AI platform** with:
 
-This is a professional-grade, end-to-end technical instruction set.
+* Unified Metadata Abstraction Layer
+* Multi-source Metadata Integration (Oracle / dbt / DataHub / Direct DB)
+* Oracle Multi-Schema Support
+* Universal Type Normalization
+* Relationship Inference Engine
+* Automated Lineage Graph Generation
+* **NEW: Admin UI for Modeling, Lineage, Provider Switching, and Data Trust**
+
+This document is the final blueprint and serves as **the master instruction** for the AI Agent and engineering workflow.
 
 ---
 
-# 🚀 **Final AI Agent Directive — Complete Metadata Integration Plan**
-
-### *(Attach this directly to the Agent as system/developer instructions)*
+# 🚀 **Final Unified Directive — Backend + UI Integration for Semantic AI Platform**
 
 ## **Purpose**
 
-You are responsible for generating and maintaining a **unified semantic model** (`semantic_model.yaml`) from multiple metadata sources. You must implement, coordinate, and execute all required tasks to integrate:
+You (the AI Agent) must implement the full semantic metadata integration pipeline *AND* add a robust UI layer that exposes and manages the entire semantic modeling system visually.
 
-1. Oracle metadata extraction
-2. Multi-schema support
-3. Type normalization
-4. Relationship inference
-5. Lineage graph generation
-6. Multi-provider architecture (dbt / DataHub / Direct DB / Oracle)
-
-Your output should always follow the unified metadata provider abstraction and never modify the core agent logic.
+This directive replaces all previous partial plans and becomes the authoritative specification.
 
 ---
 
-# **1. Metadata Provider Abstraction Layer**
+# 🧱 **PART 1 — Metadata Layer (Backend) — Already Completed in Previous Steps**
 
-You MUST implement and use the `MetadataProvider` interface:
+You must fully implement the backend metadata architecture:
+
+### ✔ Multi-provider Metadata Layer
+
+* Direct DB provider
+* dbt provider
+* DataHub provider
+* Oracle provider (new)
+
+### ✔ Oracle Enhancements
+
+* Multi-schema extraction
+* Universal type normalization
+* Relationship inference
+* Auto lineage graph (Graphviz)
+
+### ✔ Unified Semantic Model Compiler
+
+* Creates semantic_model.yaml
+* Combines vocabulary, metrics, rules, intents
+* Saves lineage graph
+* No changes to core agent logic
+
+This remains **exactly** as defined previously.
+
+---
+
+# 🌐 **PART 2 — Add Full Admin UI to the Platform**
+
+The UI is now a **mandatory component** of the system.
+It is no longer optional.
+
+The UI must give administrators:
+
+### ✔ Visibility
+
+### ✔ Control
+
+### ✔ Transparency
+
+### ✔ Trust (especially in banking environments)
+
+The UI becomes the **front-end interface** for semantic modeling and metadata management, similar to commercial systems:
+
+* WrenAI
+* Hex
+* dbt Cloud
+* DataHub UI
+* Amundsen
+* Looker Modeling UI
+
+---
+
+# 🎨 **Design Goals for the UI Layer**
+
+The Admin UI must:
+
+1. **Expose metadata visually**
+2. **Allow switching metadata providers dynamically**
+3. **Show extracted tables / columns / relationships**
+4. **Render lineage graphs**
+5. **Allow editing semantic items (vocabulary, metrics, rules)**
+6. **Provide UX for regenerating semantic_model.yaml**
+7. **Provide UX for testing Oracle/dbt/DataHub connections**
+8. **Be built modularly without touching Vanna’s core interfaces**
+
+---
+
+# 📦 **Recommended Tech Stack (Flexible Based on Your Project)**
+
+### **Frontend**
+
+* React
+* Next.js or Vite
+* TailwindCSS
+* Shadcn UI (for consistent admin components)
+* D3.js or Cytoscape.js for lineage visualization
+
+### **Backend**
+
+* FastAPI (existing)
+* Existing /api routes + new /ui routes
+* Add Graphviz file serving
+
+### **Static Assets**
+
+* `/static/lineage.png`
+* `/static/semantic_model.yaml`
+
+---
+
+# 🗂 **PART 3 — UI Architecture and Components**
+
+Below is the full breakdown.
+
+---
+
+# 🟥 **A. Connection Manager UI**
+
+### **Purpose:**
+
+Switch between metadata sources (Oracle / dbt / DataHub / Direct DB) and configure connection settings.
+
+### UI Features:
+
+* Dropdown:
+
+  * Oracle
+  * dbt
+  * DataHub
+  * Direct DB
+* Form fields (depending on provider)
+* “Test Connection” button
+* “Save & Refresh Metadata” button
+
+### API Endpoints needed:
+
+```
+GET /api/metadata/providers
+POST /api/metadata/select
+POST /api/metadata/test
+POST /api/metadata/reload
+```
+
+---
+
+# 🟦 **B. Metadata Explorer UI**
+
+### Features:
+
+* Tree view:
+
+```
+SCHEMA
+  TABLE
+    COLUMN: datatype (nullable)
+```
+
+* Ability to:
+
+  * Expand/collapse schemas
+  * Hover for column descriptions if available
+  * Show type normalization result
+
+### API Endpoints:
+
+```
+GET /api/metadata/tables
+GET /api/metadata/columns/<table>
+```
+
+---
+
+# 🟩 **C. Relationship Viewer UI (ERD + Lineage)**
+
+### What it must show:
+
+* PK/FK relationships
+* Inferred pattern relationships
+* Cross-schema relationships
+* Directed graph for lineage
+
+### Two views:
+
+1. **ER Diagram** (Entity-Relationship)
+2. **Lineage Graph** (graphviz → PNG + interactive D3.js)
+
+### Endpoints:
+
+```
+GET /api/metadata/relationships
+GET /api/metadata/lineage-graph
+```
+
+### Graph rendering:
+
+* Use Graphviz output (`lineage.png`)
+* Also render interactive D3 graph (JSON)
+
+---
+
+# 🟪 **D. Semantic Model Editor UI**
+
+### **Purpose:**
+
+Modify semantic configuration without editing YAML manually.
+
+### Editable sections:
+
+* vocabulary.json
+* metrics.yaml
+* rules.yaml
+* intents.yaml
+
+### UI tools:
+
+* JSON editor (monaco editor)
+* YAML editor (monaco editor)
+* Auto-validation
+* “Apply Changes” button
+
+### Endpoints:
+
+```
+GET /api/semantic/vocabulary
+POST /api/semantic/vocabulary
+
+GET /api/semantic/rules
+POST /api/semantic/rules
+
+GET /api/semantic/metrics
+POST /api/semantic/metrics
+
+GET /api/semantic/intents
+POST /api/semantic/intents
+```
+
+---
+
+# 🟫 **E. Semantic Model Generator UI**
+
+### **Purpose:**
+
+Expose a button:
+
+> **Regenerate Semantic Model**
+
+This triggers:
+
+* Metadata extraction
+* Relationship inference
+* Type normalization
+* Merging YAML/JSON config
+* Writing semantic_model.yaml
+* Regenerating lineage graph
+
+### Endpoint:
+
+```
+POST /api/semantic/generate
+```
+
+---
+
+# 🟧 **F. Versioning and Audit Log UI (Optional but recommended)**
+
+Allows:
+
+* Seeing history of semantic_model.yaml versions
+* Rolling back to older versions
+* Commit-like timeline
+
+未来 Expansion (optional for banks):
+
+* Metadata Change Proposal → Approval → Merge
+
+---
+
+# 🧠 **PART 4 — Integration With Backend**
+
+The backend must expose:
+
+### **API Layer**
+
+* A new `/api/metadata` router
+* A new `/api/semantic` router
+* Static file hosting for lineage graph
+
+### **Database Layer**
+
+* Reuse Oracle metadata provider
+* Multi-schema support
+
+### **Semantic Engine**
+
+* Use existing compiler
+* Add callbacks to UI endpoints
+
+---
+
+# 🧩 **PART 5 — Updated Global Architecture (Final)**
+
+```
+                 ┌───────────────────────────┐
+                 │        Admin UI           │
+                 │ React / Next.js + API     │
+                 └─────────────┬─────────────┘
+                               │
+                               ▼
+         ┌──────────────────────────────┐
+         │       FastAPI Backend        │
+         │ /api/metadata   /api/semantic│
+         │         /api/ui              │
+         └──────────────┬───────────────┘
+                        │
+                        ▼
+   ┌──────────────────────────────────────────────┐
+   │     Metadata Provider Abstraction Layer      │
+   │ MetadataProvider + Providers (Oracle/dbt/...)│
+   └──────────────┬──────────────┬───────────────┘
+                  │              │
+      ┌───────────┘      ┌───────┴───────────────┐
+      ▼                   ▼                       ▼
+ Oracle Provider     dbt Provider          DataHub Provider
+ (Multi-Schema,      (manifest/catalog)     (JSON / API)
+  Type Normalizer,
+  Relationship AI,
+  Lineage Graph)
+```
+
+---
+
+# 🟦 **PART 6 — Final Instruction Statement for the Agent**
+
+You (the AI Agent) must implement **ALL** of the following:
+
+1. Full metadata provider ecosystem
+2. Oracle multi-schema support
+3. Universal type normalizer
+4. Relationship pattern inference
+5. Lineage graph generation
+6. Unified semantic_model compiler
+7. Full Admin UI including:
+
+   * Connection Manager
+   * Metadata Explorer
+   * Relationship & Lineage Viewer
+   * Semantic Model Editor
+   * Semantic Model Generator
+8. New REST API layer to support the UI
+9. Zero modification to the AI Agent’s core logic
+10. Full integration into existing app structure
+11. Ensure all backend changes and UI features operate cohesively
+
+This is now the **authoritative, merged architecture**.
+
+---
+
+# 🎉 **Your full integration plan is now complete.**
+
+If you want, I can now generate:
+
+### 🔥 Full UI component code (React/Next.js)
+
+### 🔥 New FastAPI endpoints
+
+### 🔥 A full metadata dashboard template
+
+### 🔥 UX Wireframes
+
+### 🔥 A Figma layout for the admin platform
+
+
+
+
+
+Understood—below is the **updated, unified, and expanded final directive** for the AI Agent, **integrating the complete UI plan** *as a core part of the architecture*, not an optional add-on.
+
+This replaces the previous directive with a fully merged one that matches your final requirement:
+**Backend + Metadata Engine + Admin UI = One Integrated Platform.**
+
+This is now the **authoritative master instruction** for the AI Agent.
+
+---
+
+# 🚀 **FINAL AI AGENT DIRECTIVE — Unified Metadata Platform + Admin UI Integration**
+
+### *(Attach this to the Agent as the main system/developer directive)*
+
+## 🎯 **Purpose**
+
+You are responsible for implementing the complete **Semantic Metadata Platform**, which includes:
+
+### **A) Backend Architecture (FastAPI + Multi-Provider Metadata Engine)**
+
+### **B) Admin UI (React/Vite/Tailwind) with full platform control**
+
+Your output must integrate **all metadata extraction, transformation, modeling, and visualization capabilities** with a **full-featured admin interface** accessible at `/admin`.
+
+You MUST execute the entire plan precisely.
+
+---
+
+# =============================
+
+# 🟥 PART 1 — Metadata Engine (Backend)
+
+# =============================
+
+You must implement and maintain the full metadata engine with the following capabilities:
+
+---
+
+# 1. Metadata Provider Abstraction Layer
+
+Implement the `MetadataProvider` interface:
 
 * `get_tables()`
 * `get_columns()`
 * `get_relationships()`
 * `get_hierarchy()` (optional)
 
-You must ensure every metadata source (Oracle, dbt, DataHub, direct DB extraction) conforms to this interface.
+All metadata sources must implement this interface.
 
-Do NOT hard-code dependencies between the AI Agent and metadata sources.
-The Agent must rely ONLY on the unified provider interface.
+The AI Agent must **never** reference providers directly—only through this abstraction.
 
 ---
 
-# **2. Implement Four Metadata Providers**
+# 2. Implement All Metadata Providers
 
-You must implement these providers:
+### **2.1 Direct DB Provider**
 
-### **2.1. Direct DB Provider (Existing JSON extractor)**
+Reads JSON files:
 
-Reads:
+* tables.json
+* columns.json
+* relationships.json
 
-* metadata/tables.json
-* metadata/columns.json
-* metadata/relationships.json
-
-### **2.2. dbt Provider**
+### **2.2 dbt Provider**
 
 Reads:
 
-* dbt/target/manifest.json
-* dbt/target/catalog.json
+* manifest.json
+* catalog.json
 
-Extract:
+Extracts:
 
-* models
+* tables
 * columns
-* optional relationships (tests)
+* optional dbt-tests-based relationships
 
-### **2.3. DataHub Provider**
+### **2.3 DataHub Provider**
 
 Reads:
 
 * datahub_metadata.json
 
-Extract:
+Outputs tables, columns, relationships.
 
-* tables
-* columns
-* explicit relationships
+### **2.4 Oracle Metadata Provider (Advanced Version)**
 
-### **2.4. Oracle Metadata Provider**
+Using python-oracledb:
 
-Connect using `python-oracledb` (Thin mode by default).
-Implement multi-schema support through:
+#### You MUST support:
 
-```
-SCHEMAS=GL,AP,AR
-```
+* Multi-schema metadata extraction
+* Cross-schema relationships
+* Data type normalization
+* Full FK extraction
+* Relationship inference
 
-Extract:
+Using:
 
-* tables (`all_tables`)
-* columns (`all_tab_columns`)
-* FKs (`all_constraints`, `all_cons_columns`)
-* datatype attributes
-* cross-schema relationships
+* ALL_TABLES
+* ALL_TAB_COLUMNS
+* ALL_CONSTRAINTS
+* ALL_CONS_COLUMNS
 
 ---
 
-# **3. Add Universal Type Normalization**
+# 3. Universal Type Normalizer (Oracle → Standard SQL Types)
 
-Implement a type normalizer that converts Oracle datatypes to a universal format:
+You MUST convert Oracle datatypes to:
 
-| Oracle Type    | Normalized Type |
-| -------------- | --------------- |
-| VARCHAR2, CHAR | STRING          |
-| NUMBER(p, s>0) | FLOAT           |
-| NUMBER(p, 0)   | INT             |
-| CLOB           | TEXT            |
-| BLOB           | BINARY          |
-| DATE           | DATE            |
-| TIMESTAMP      | TIMESTAMP       |
+| Oracle Type      | Normalized |
+| ---------------- | ---------- |
+| VARCHAR2, CHAR   | STRING     |
+| NUMBER( p, s>0 ) | FLOAT      |
+| NUMBER( p, s=0 ) | INT        |
+| DATE             | DATE       |
+| TIMESTAMP        | TIMESTAMP  |
+| CLOB             | TEXT       |
+| BLOB             | BINARY     |
 
-All columns extracted from Oracle MUST be normalized before being included in `semantic_model.yaml`.
+Normalization must be performed in every provider that uses Oracle metadata.
 
 ---
 
-# **4. Add Relationship Inference Using Patterns**
+# 4. Relationship Inference Engine
 
-In addition to real FK constraints, infer relationships using:
+Beyond FK constraints, you must infer relationships using:
 
-* Column names ending in `_ID`
-* Column names ending in `_FK`
-* Matching PK-like columns across tables
-* Prefix analysis (e.g., GL_, AR_, AP_)
+1. Column naming patterns:
 
-Add all inferred relationships with:
+   * *_ID
+   * *_FK
+2. Matching PK-like columns across tables
+3. Prefix relationships (GL_, AP_, AR_)
+4. Exact name matches across schemas
 
-```
+Add inferred relationships with:
+
+```json
 "source": "pattern_inference"
 ```
 
-The final relationship list must include both:
+The final relationship list must include:
 
-* Real FK relationships (from Oracle)
-* Inferred relationships (from patterns)
+* Real FK relationships
+* Pattern-inferred relationships
 
 ---
 
-# **5. Generate Lineage Graphs**
+# 5. Lineage Graph Generation
 
-After computing final relationships, generate:
+You MUST generate:
 
 * `lineage.dot`
 * `lineage.png`
 
-Use Graphviz:
+Using Graphviz:
 
-* Nodes represent tables
-* Directed edges represent relationships
-* Arrow from child → parent table
-* Label edges with column names
+* Nodes = tables
+* Edges = FK and inferred relationships
+* Directed edges child → parent
+* Edge labels = column names
 
-This must run automatically during semantic model generation.
+This graph is required for the Admin UI.
 
 ---
 
-# **6. Build Unified Semantic Model**
+# 6. Semantic Model Compiler
 
 Using:
 
@@ -1799,131 +2183,315 @@ Using:
 * metrics.yaml
 * rules.yaml
 * intents.yaml
+* hierarchy (if present)
 
-Compile a unified:
+You must compile:
 
 ```
 semantic_model.yaml
 ```
 
-This file MUST strictly follow the structure:
-
-```yaml
-semantic_model:
-  version: "1.0"
-  tables: [...]
-  columns: {...}
-  relationships: [...]
-  vocabulary: {...}
-  metrics: {...}
-  rules: {...}
-  intents: {...}
-  hierarchy: [...]
-```
+You must ensure strict, consistent formatting.
 
 ---
 
-# **7. Universal Build Script**
+# 7. Universal Build Script
 
-Implement a universal build script (`tools/build_semantic_model.py`) that selects the metadata provider based on:
+The script (`tools/build_semantic_model.py`) must:
+
+* Select provider from:
 
 ```
 METADATA_SOURCE=oracle|dbt|datahub|direct
 ```
 
-Behavior:
+* Extract metadata
+* Normalize types
+* Infer relationships
+* Generate lineage graph
+* Produce semantic_model.yaml
 
-* If `oracle`: use OracleMetadataProvider
-* If `dbt`: use DbtMetadataProvider
-* If `datahub`: use DataHubMetadataProvider
-* Else: use DirectDbMetadataProvider
+Print:
 
-Compile and output:
-
-* semantic_model.yaml
-* lineage graph
-
-The build script must:
-
-* validate inputs
-* normalize datatypes
-* merge pattern-inferred relationships
-* generate the lineage graph
-* print a success message showing the provider used
+```
+✔ semantic_model.yaml generated using <provider>
+```
 
 ---
 
-# **8. Execution Requirements**
+# =============================
 
-The Agent MUST:
+# 🟦 PART 2 — Backend API Layer (FastAPI)
 
-* Ensure all modules exist and are importable
-* Validate DSN for Oracle connectivity
-* Handle Oracle Thin mode by default
-* Use Thick mode only if `ORACLE_CLIENT` is provided
-* Fail gracefully with descriptive error messages
-* Log all steps during execution
-* Never modify core agent logic or Vanna integration
+# =============================
+
+You MUST expose APIs for the Admin UI.
 
 ---
 
-# **9. Developer Responsibilities**
+# 8. Implement Metadata API Endpoints
 
-The Agent MUST produce:
+Under `/api/metadata`:
 
-* Correct, portable, optimized code
-* Clean directory structure
-* Self-contained modules
-* Accurate type and relationship extraction
-* Consistent formatting for YAML and DOT files
-* Minimal external dependencies (only `graphviz` for graphs)
+| Endpoint            | Description                 |
+| ------------------- | --------------------------- |
+| GET /tables         | List of tables              |
+| GET /columns        | Columns for all tables      |
+| GET /relationships  | FK + inferred relationships |
+| GET /semantic-model | Current semantic_model.yaml |
 
----
+Future endpoints must support:
 
-# **10. Deliverables**
-
-Upon execution, the Agent must produce:
-
-### **1. Fully functional metadata providers**
-
-(Oracle, dbt, DataHub, direct DB)
-
-### **2. A working build pipeline**
-
-that generates:
-
-* semantic_model.yaml
-* lineage.png
-* lineage.dot
-
-### **3. Standardized normalized metadata output**
-
-### **4. Zero changes to core AI agent logic**
+* Testing Oracle/dbt/DataHub connections
+* Reloading metadata
+* Switching providers
 
 ---
 
-# **11. Summary Objective**
+# 9. Integrate API Router
 
-Your goal is to ensure the metadata ecosystem becomes:
+Update:
 
-* Modular
-* Extensible
-* Provider-agnostic
-* Oracle-compatible
-* Multi-schema aware
-* Normalized
-* Relationally complete
-* Graphically documented
-* Ready for enterprise-grade semantic modeling
+```
+app/api/router.py
+```
 
-**You must execute every step of this directive precisely and consistently.**
+To include:
+
+```
+/metadata
+```
+
+Tag: `metadata`.
 
 ---
 
-# ✅ The directive is complete.
+# 10. Serve Admin UI Static Files
 
-If you'd like, I can now generate:
+In `app/main.py`, you MUST:
 
-* A **README section specifically for Oracle metadata setup**
-* A **CI/CD workflow** to auto-generate semantic models on pushes
-* A **test suite for provider validation**
+1. Check if `/frontend/dist` exists
+2. Mount it as static files under:
+
+```
+/admin
+```
+
+Code pattern:
+
+```python
+app.mount("/admin", StaticFiles(directory=frontend_dist, html=True), name="admin")
+```
+
+If missing, print a warning.
+
+---
+
+# =============================
+
+# 🟩 PART 3 — Admin UI (Frontend)
+
+# =============================
+
+You MUST integrate a full UI under `/admin`.
+
+This is required for platform-level visibility and control.
+
+---
+
+# 11. UI Tech Stack
+
+You MUST use:
+
+* React
+* Vite
+* TailwindCSS
+* React Router
+* Axios
+* OPTIONAL: React Flow for lineage visualization
+
+---
+
+# 12. UI Project Structure
+
+Under:
+
+```
+frontend/
+```
+
+You must generate:
+
+```
+frontend/
+├── dist/        # built static UI served by FastAPI
+├── index.html
+├── src/
+│   ├── App.jsx
+│   ├── pages/
+│   │   ├── MetadataExplorer.jsx
+│   │   ├── LineageViewer.jsx
+│   │   ├── SemanticEditor.jsx
+│   │   ├── ProviderSwitcher.jsx
+│   │   └── Dashboard.jsx
+│   ├── components/
+│   │   ├── TableList.jsx
+│   │   ├── ColumnList.jsx
+│   │   ├── RelationshipGraph.jsx
+│   │   └── Navbar.jsx
+└── package.json
+```
+
+---
+
+# 13. UI Features (Mandatory)
+
+## 13.1 Metadata Explorer
+
+* Show schemas
+* Expand table → show columns
+* Show data types (normalized)
+* Show PK/FK/inferred markers
+
+Fetch from:
+
+```
+/api/metadata/tables
+/api/metadata/columns
+```
+
+---
+
+## 13.2 Lineage Viewer
+
+Two modes:
+
+### A) Static PNG using Graphviz
+
+Fetch:
+
+```
+/static/lineage.png
+```
+
+### B) Dynamic interactive graph
+
+Use JSON form of relationships from:
+
+```
+/api/metadata/relationships
+```
+
+Render using React Flow / D3.js.
+
+---
+
+## 13.3 Semantic Model Editor
+
+Load YAML/JSON files:
+
+* vocabulary.json
+* metrics.yaml
+* rules.yaml
+* intents.yaml
+
+Allow editing via CodeMirror/Monaco editor.
+
+Save using:
+
+```
+POST /api/semantic/<section-name>
+```
+
+---
+
+## 13.4 Metadata Source Selector
+
+Let the admin choose:
+
+* Oracle
+* dbt
+* DataHub
+* Direct DB
+
+Provide:
+
+* Selection UI
+* Test connection button
+* Refresh metadata button
+
+---
+
+## 13.5 Rebuild Semantic Model
+
+UI button:
+
+```
+Generate semantic_model.yaml
+```
+
+Triggers API:
+
+```
+POST /api/semantic/generate
+```
+
+---
+
+# =============================
+
+# 🟨 PART 4 — Operational Requirements
+
+# =============================
+
+The AI Agent MUST ensure:
+
+### ✔ Zero breaking changes to core agent logic
+
+### ✔ All new features are isolated under `/api/metadata` and `/admin`
+
+### ✔ Metadata extraction is backend-driven
+
+### ✔ UI is fully decoupled and served as static assets
+
+### ✔ All providers remain interchangeable
+
+### ✔ Errors are logged clearly
+
+### ✔ All endpoints return structured JSON
+
+---
+
+# =============================
+
+# 🟧 PART 5 — Completed Deliverables
+
+# =============================
+
+Once the directive is executed, the Agent must produce:
+
+### ✔ Fully functional metadata providers
+
+### ✔ Full backend API for the Admin UI
+
+### ✔ Auto lineage graph (PNG + DOT)
+
+### ✔ Multi-schema Oracle extraction
+
+### ✔ Universal type normalizer
+
+### ✔ Relationship inference engine
+
+### ✔ Unified semantic_model.yaml generator
+
+### ✔ Full React Admin UI served at `/admin`
+
+### ✔ Complete build pipeline
+
+### ✔ Zero modification to core Vanna logic
+
+---
+
+# 🎉 **This updated directive is now final, complete, and authoritative.**
+
+

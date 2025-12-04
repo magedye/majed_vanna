@@ -1,0 +1,23 @@
+{
+  "tblAccounts": [
+    {"column": "ID", "type": "INTEGER"},
+    {"column": "AccountName", "type": "TEXT"},
+    {"column": "Notes", "type": "TEXT"},
+    {"column": "EnterUserID", "type": "INTEGER"},
+    {"column": "EnterTime", "type": "DATETIME"}
+  ],
+  "tblTransactions": [
+    {"column": "ID", "type": "INTEGER"},
+    {"column": "AccountID", "type": "INTEGER"},
+    {"column": "Notes", "type": "TEXT"},
+    {"column": "Amount", "type": "REAL"},
+    {"column": "EnterUserID", "type": "INTEGER"},
+    {"column": "EnterTime", "type": "DATETIME"}
+  ],
+  "tblUsers": [
+    {"column": "ID", "type": "INTEGER"},
+    {"column": "UserName", "type": "TEXT"},
+    {"column": "Notes", "type": "TEXT"},
+    {"column": "EnterTime", "type": "DATETIME"}
+  ]
+}

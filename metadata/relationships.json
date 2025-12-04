@@ -1,0 +1,20 @@
+[
+  {
+    "table": "tblTransactions",
+    "column": "AccountID",
+    "ref_table": "tblAccounts",
+    "ref_column": "ID"
+  },
+  {
+    "table": "tblTransactions",
+    "column": "EnterUserID",
+    "ref_table": "tblUsers",
+    "ref_column": "ID"
+  },
+  {
+    "table": "tblAccounts",
+    "column": "EnterUserID",
+    "ref_table": "tblUsers",
+    "ref_column": "ID"
+  }
+]
