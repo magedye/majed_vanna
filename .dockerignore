@@ -1,0 +1,17 @@
+.env
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+.git/
+.gitignore
+pytest_cache/
+server*.log
+*.sqlite
+chroma_db/
+app/static/charts/
+docker/
+services/
+metadata/
