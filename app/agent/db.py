@@ -97,23 +97,18 @@ def _build_oracle_runner():
             sql = args.sql.rstrip()
             if sql.endswith(";"):
                 sql = sql[:-1]
+            conn = await db_circuit.call_async(lambda: _oracle_connection_factory())
             try:
-                conn = await db_circuit.call_async(lambda: _oracle_connection_factory())
+                cur = conn.cursor()
                 try:
-                    cur = conn.cursor()
-                    try:
-                        cur.execute(sql)
-                        rows = cur.fetchall()
-                        cols = [d[0] for d in cur.description] if cur.description else []
-                        db_circuit._on_success()
-                        return pd.DataFrame(rows, columns=cols)
-                    finally:
-                        cur.close()
+                    cur.execute(sql)
+                    rows = cur.fetchall()
+                    cols = [d[0] for d in cur.description] if cur.description else []
+                    return pd.DataFrame(rows, columns=cols)
                 finally:
-                    conn.close()
-            except Exception:
-                db_circuit._on_failure()
-                raise
+                    cur.close()
+            finally:
+                conn.close()
 
     return PoolingOracleRunner()
 

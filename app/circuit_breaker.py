@@ -43,11 +43,13 @@ class CircuitBreaker:
         if self.failures >= self.failure_threshold:
             self.state = "OPEN"
 
-    async def call_async(self, func: Callable[[], Awaitable[Any]]):
+    async def call_async(self, func: Callable[[], Any]):
         if not self._can_pass():
             raise RuntimeError(f"CircuitBreaker[{self.name}] is OPEN")
         try:
-            result = await func()
+            result = func()
+            if hasattr(result, "__await__"):
+                result = await result
             self._on_success()
             return result
         except Exception:
