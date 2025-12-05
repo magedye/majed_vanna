@@ -75,6 +75,7 @@ itsdangerous==2.2.0
 jedi==0.19.2
 Jinja2==3.1.6
 jiter==0.12.0
+joblib==1.5.2
 json5==0.12.1
 jsonpointer==3.0.0
 jsonschema==4.25.1
@@ -163,6 +164,7 @@ pywinpty==3.0.2
 PyYAML==6.0.3
 pyzmq==27.1.0
 referencing==0.37.0
+regex==2025.11.3
 requests==2.32.5
 requests-oauthlib==2.0.0
 rfc3339-validator==0.1.4
@@ -171,6 +173,8 @@ rfc3987-syntax==1.1.0
 rich==14.2.0
 rpds-py==0.30.0
 rsa==4.9.1
+safetensors==0.7.0
+scipy==1.16.3
 Send2Trash==1.8.3
 setuptools==80.9.0
 shellingham==1.5.4
@@ -185,6 +189,7 @@ sympy==1.14.0
 tabulate==0.9.0
 tenacity==9.1.2
 terminado==0.18.1
+threadpoolctl==3.6.0
 tinycss2==1.4.0
 tokenizers==0.22.1
 tornado==6.5.2

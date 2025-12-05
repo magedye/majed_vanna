@@ -1,23 +1,11 @@
-import os
-from vanna.legacy.chromadb.chromadb_vector import ChromaDB_VectorStore
-from vanna.legacy.openai.openai_chat import OpenAI_Chat
-from openai import OpenAI
-
-
-class LocalVanna(ChromaDB_VectorStore, OpenAI_Chat):
-    def __init__(self, config=None):
-        # 1. Init ChromaDB locally
-        ChromaDB_VectorStore.__init__(self, config={"path": "./chroma_db"})
-        # 2. Init LLM (LM Studio)
-        client = OpenAI(api_key=config.get("api_key"), base_url=config.get("api_base"))
-        OpenAI_Chat.__init__(self, client=client, config={"model": config.get("model")})
-
+from app.agent.implementation import LocalVanna
 
 # Config for LM Studio
 config = {
     "api_key": "lm-studio",
     "api_base": "http://localhost:1234/v1",
     "model": "gemma-3n",
+    "path": "./chroma_db",
 }
 
 vn = LocalVanna(config=config)

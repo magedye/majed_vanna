@@ -1,7 +1,7 @@
 import os
 import chromadb
 from chromadb.utils import embedding_functions
-from vanna.base import VannaBase
+from vanna.legacy.base.base import VannaBase
 
 # Fixed embedding function (384-dim)
 FIXED_EMBEDDING_FUNCTION = embedding_functions.SentenceTransformerEmbeddingFunction(

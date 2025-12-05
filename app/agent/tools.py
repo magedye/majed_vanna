@@ -7,7 +7,7 @@ from pathlib import Path
 
 from vanna.core.registry import ToolRegistry
 from vanna.integrations.local import LocalFileSystem
-from vanna.types import UiComponent
+from vanna.components import UiComponent
 from vanna.tools.agent_memory import (
     SaveQuestionToolArgsTool,
     SearchSavedCorrectToolUsesTool,

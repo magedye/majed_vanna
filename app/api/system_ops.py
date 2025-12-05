@@ -2,6 +2,8 @@ import os
 import shutil
 import time
 
+import chromadb
+from chromadb.config import Settings
 from fastapi import APIRouter, HTTPException
 
 router = APIRouter(prefix="/api/system", tags=["System Management"])
@@ -51,13 +53,18 @@ def reset_memory(force: bool = False):
         except Exception as e:
             print(f"[WARNING] Pre-reset backup failed: {e}")
 
-    # Perform deletion
+    # Perform reset via Chroma client to avoid file-lock issues; if reset disabled, drop collections
     try:
-        if os.path.exists(CHROMA_PATH):
-            shutil.rmtree(CHROMA_PATH)
-
+        client = chromadb.PersistentClient(
+            path=CHROMA_PATH, settings=Settings(anonymized_telemetry=False)
+        )
+        try:
+            client.reset()
+        except Exception:
+            # If reset is disabled, delete collections individually
+            for col in client.list_collections():
+                client.delete_collection(col.name)
         os.makedirs(CHROMA_PATH, exist_ok=True)
-
         return {
             "status": "success",
             "message": "Memory successfully reset. Restart backend.",
@@ -66,4 +73,5 @@ def reset_memory(force: bool = False):
     except PermissionError:
         raise HTTPException(500, "Folder locked. Close terminal & retry.")
     except Exception as e:
+        print(f"[ERROR] reset-memory failed: {e}")
         raise HTTPException(500, str(e))
