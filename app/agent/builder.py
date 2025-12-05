@@ -33,7 +33,7 @@ kb_config = {
 knowledge_base = LocalVanna(config=kb_config)
 
 
-def _collect_schema_text(limit_chars: int = 8000) -> str:
+def _collect_schema_text(limit_chars: int = 12000) -> str:
     try:
         df = knowledge_base.get_training_data()
         if df is None or df.empty:

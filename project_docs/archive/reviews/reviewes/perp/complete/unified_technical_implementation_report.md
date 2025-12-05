@@ -482,7 +482,7 @@ class VannaUser(HttpUser):
     def ask_question(self):
         self.client.get("/ask?question=What are the top 10 customers")
 
-# Run: locust -f locustfile.py --host=http://localhost:8000
+# Run: locust -f locustfile.py --host=http://localhost:7777
 # Result should: Handle 1000 req/min without degradation
 ```
 
@@ -830,4 +830,5 @@ Date: ___________________
 **Date:** December 4, 2025  
 
 **Next Step:** Executive decision meeting (Dec 5, 2025)
+
 

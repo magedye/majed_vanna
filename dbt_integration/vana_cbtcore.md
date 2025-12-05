@@ -507,3 +507,4 @@ JOIN customers ON transactions.customer_id = customers.id
 ---
 
 # **9. جاهزية التنفيذ**
+

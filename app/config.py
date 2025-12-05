@@ -66,7 +66,7 @@ if LLM_PROVIDER not in LLM_CONFIG:
     )
 
 HOST = os.getenv("HOST", "0.0.0.0")
-PORT = int(os.getenv("PORT", 8000))
+PORT = int(os.getenv("PORT", 7777))
 DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 WORKERS = int(os.getenv("WORKERS", 1))
 

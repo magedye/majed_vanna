@@ -131,7 +131,7 @@ class Settings(BaseSettings):
     
     # Server Configuration
     HOST: str = "0.0.0.0"
-    PORT: int = 8000
+    PORT: int = 7777
     DEBUG: bool = False
     LOG_LEVEL: str = "INFO"
     
@@ -781,3 +781,4 @@ Phase 3 (1 week): Documentation & Testing
 *Report Generated: December 4, 2025*  
 *Analysis System: AI Code Quality & Security Assessment*  
 *Status: Ready for Team Review & Action*
+

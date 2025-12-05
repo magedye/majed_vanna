@@ -38,8 +38,8 @@ Enable secure, enterprise-grade natural language analytics.
 
 #### **12. Operational Notes (Phase 4 - Deployment & Runtime)**
 - Docker path: multi-stage Dockerfile (non-root, healthcheck to `/api/health/ready`), docker-compose with nginx + app, volumes for `./chroma_db` and `./app/static/charts`.
-- Nginx path: reverse proxy on 8080 with increased timeouts (600s, WS 86400s), security headers, WebSocket upgrades, static offload for `/charts`.
-- Native path: `scripts/run_prod.bat` starts uvicorn (`app.main:app`) on 0.0.0.0:8000 with workers=2; activate venv if present.
+- Nginx path: reverse proxy on 7770 with increased timeouts (600s, WS 86400s), security headers, WebSocket upgrades, static offload for `/charts`.
+- Native path: `scripts/run_prod.bat` starts uvicorn (`app.main:app`) on 0.0.0.0:7777 with workers=2; activate venv if present.
 
 #### **3. Execution Phases**
 The agent must always operate inside the currently authorized phase.
@@ -65,3 +65,4 @@ The agent must:
 - Never auto-enable enhanced security mode
 - Avoid adding LLM providers
 - Avoid semantic layer work unless explicitly authorized
+

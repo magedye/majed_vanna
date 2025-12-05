@@ -852,7 +852,7 @@ vn = MyVanna(config={
 from vanna.weaviate.weaviate_vector import Weaviate_VectorStore
 
 vn = MyVanna(config={
-    'weaviate_url': 'http://localhost:8080',
+    'weaviate_url': 'http://localhost:7770',
     'weaviate_api_key': 'key...'
 })
 ```
@@ -1860,4 +1860,5 @@ LAYER 3: SEMANTIC LAYER (Your Addition)
 **Quality:** Production-Grade  
 **Confidence:** 95%  
 **Ready for Implementation:** YES ✅
+
 

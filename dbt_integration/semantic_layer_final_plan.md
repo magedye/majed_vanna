@@ -1332,7 +1332,7 @@ COPY . .
 RUN python tools/build_semantic_model.py
 
 # Run
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "7777"]
 ```
 
 ## 8.3 Kubernetes Deployment
@@ -1356,7 +1356,7 @@ spec:
       - name: majed-vanna
         image: majed-vanna:latest
         ports:
-        - containerPort: 8000
+        - containerPort: 7777
         env:
         - name: METADATA_SOURCE
           value: oracle
@@ -1375,7 +1375,7 @@ spec:
         livenessProbe:
           httpGet:
             path: /api/health
-            port: 8000
+            port: 7777
           initialDelaySeconds: 10
           periodSeconds: 10
 ```
@@ -1468,7 +1468,7 @@ python tools/build_semantic_model.py
 systemctl restart majed-vanna
 
 # 5. Verify
-curl http://localhost:8000/api/health
+curl http://localhost:7777/api/health
 ```
 
 ---

@@ -382,7 +382,7 @@ class Settings(BaseSettings):
     
     # ============ SERVER CONFIGURATION ============
     HOST: str = "0.0.0.0"
-    PORT: int = 8000
+    PORT: int = 7777
     DEBUG: bool = False
     LOG_LEVEL: str = "INFO"
     WORKERS: int = 4
@@ -1219,3 +1219,4 @@ Once the AI agent completes all phases above:
 **Go build something great. This project deserves it.**
 
 *Generated: December 4, 2025*
+

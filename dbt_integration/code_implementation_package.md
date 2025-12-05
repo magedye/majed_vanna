@@ -830,7 +830,7 @@ This package contains all production-ready code files needed for semantic layer 
 2. Update requirements.txt with new dependencies
 3. Configure .env file
 4. Run: `python tools/build_semantic_model.py`
-5. Verify: `curl http://localhost:8000/api/metadata/config`
+5. Verify: `curl http://localhost:7777/api/metadata/config`
 
 **Next steps:**
 - Deploy configuration files (vocabulary.json, metrics.yaml, rules.yaml, intents.yaml)

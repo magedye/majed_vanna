@@ -109,13 +109,13 @@ api_router.include_router(metadata_router, prefix="/metadata", tags=["metadata"]
 4. Test API endpoints:
 ```bash
 # Get configuration
-curl http://localhost:8000/api/metadata/config
+curl http://localhost:7777/api/metadata/config
 
 # Get tables
-curl http://localhost:8000/api/metadata/tables
+curl http://localhost:7777/api/metadata/tables
 
 # Generate model
-curl -X POST http://localhost:8000/api/metadata/generate
+curl -X POST http://localhost:7777/api/metadata/generate
 ```
 
 **Expected Responses:**
@@ -289,7 +289,7 @@ locust -f tests/load/locustfile.py
 ```bash
 # Deploy to staging
 docker build -t majed-vanna:staging .
-docker run -p 8000:8000 majed-vanna:staging
+docker run -p 7777:7777 majed-vanna:staging
 ```
 
 6. Production deployment

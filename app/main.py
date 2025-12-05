@@ -1,3 +1,4 @@
+import os
 import sys
 from pathlib import Path
 from typing import Any, Dict
@@ -12,13 +13,11 @@ from fastapi.staticfiles import StaticFiles
 from app.api.router import api_router
 from app.api import system_ops, memory_ui_handler
 from app.agent.builder import agent
-from app.agent.port_guard import find_available_port
 from app.agent.input_validation import InputValidationMiddleware, SafeChatHandler
 from app.api.error_handlers import register_exception_handlers
 from app.api.rate_limit import RateLimitMiddleware
 from app.config import (
     HOST,
-    PORT,
     DEBUG,
     DB_PROVIDER,
     DB_SQLITE,
@@ -56,9 +55,7 @@ def start():
     app.include_router(memory_ui_handler.router)
     register_exception_handlers(app)
 
-    port = find_available_port(PORT) if DEBUG else PORT
-    if DEBUG:
-        print(f"[DEBUG] find_available_port scanned starting at {PORT}, selected {port}")
+    port = int(os.getenv("APP_PORT", "7777"))
 
     update_runtime(
         llm_provider=LLM_PROVIDER,

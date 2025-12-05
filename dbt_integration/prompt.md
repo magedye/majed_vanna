@@ -23,8 +23,8 @@ pip install -r requirements.txt
 
 
 Important:
-The UI memory handler uses a fixed port: http://localhost:8000/….
-Keep your backend running on port 8000 to avoid breaking the Reset/Backup buttons.
+The UI memory handler uses a fixed port: http://localhost:7777/….
+Keep your backend running on port 7777 to avoid breaking the Reset/Backup buttons.
 
 📂 Integration Plan — Execute EXACTLY in this order
 ✅ Step 1 — Install and Configure Semantic Layer Core
@@ -250,7 +250,7 @@ python app/main.py
 
 Reset memory once:
 
-http://localhost:8000/api/system/reset-memory?force=true
+http://localhost:7777/api/system/reset-memory?force=true
 
 
 Re-train embeddings:

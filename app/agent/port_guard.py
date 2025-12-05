@@ -1,5 +1,5 @@
 import socket
-def find_available_port(start_port=8000, attempts=20):
+def find_available_port(start_port=7777, attempts=20):
     for i in range(attempts):
         port=start_port+i
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:

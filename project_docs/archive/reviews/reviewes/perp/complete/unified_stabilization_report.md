@@ -1145,7 +1145,7 @@ locust -f locustfile.py --headless -u 1000 -r 100 -t 60m
 # Run security scanners
 bandit -r app/
 safety check
-sqlmap -u "http://localhost:8000/api/query" --batch
+sqlmap -u "http://localhost:7777/api/query" --batch
 ```
 
 #### Task 5.3: Production Deployment Verification
@@ -1495,4 +1495,5 @@ Signed: ________________________
 **Confidence:** 95%  
 **Quality:** Production-Grade  
 **Next Action:** Assign to development team, start Week 1
+
 

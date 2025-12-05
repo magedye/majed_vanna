@@ -146,7 +146,7 @@ python -m app.main
 ## 4️⃣ الوصول إلى الواجهة:
 
 ```
-http://localhost:8000/vanna
+http://localhost:7777/vanna
 ```
 
 ---
@@ -173,7 +173,7 @@ http://localhost/
 
 ```
 HOST=0.0.0.0
-PORT=8000
+PORT=7777
 
 DB_PROVIDER=sqlite
 SQLITE_DB=D:\mydb.db
@@ -262,9 +262,10 @@ GET /api/db-status
 # Deployment Options
 
 Method A � Docker (app + nginx)
-- Build/start: docker compose up -d --build`n- Access: http://localhost:8080 (charts served from /charts )
+- Build/start: docker compose up -d --build`n- Access: http://localhost:7770 (charts served from /charts )
 - Volumes: ./chroma_db -> /app/chroma_db, ./app/static/charts -> /app/app/static/charts`n- Healthcheck: /api/health/ready`n
 Method B � Native (no Docker)
 - Ensure venv and .env exist.
-- Run: scripts\run_prod.bat (uvicorn on 0.0.0.0:8000, workers=2)
-- Access UI: http://localhost:8000`n
+- Run: scripts\run_prod.bat (uvicorn on 0.0.0.0:7777, workers=2)
+- Access UI: http://localhost:7777`n
+
