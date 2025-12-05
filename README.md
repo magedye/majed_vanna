@@ -1,271 +1,65 @@
-فيما يلي **README.md احترافي كامل** وجاهز لوضعه في مشروعك
-`full_vanna_project/README.md`
-وهو مكتوب بأسلوب شركات SaaS ويصلح للإنتاج Production-Grade.
-
----
-
-# 📘 **Vanna AI – Production-Grade Agent System**
-
-نظام متكامل يعتمد على Vanna AI لتقديم وكيل ذكي (AI Agent) قادر على:
-
-* تشغيل نماذج لغوية متعددة (LM Studio – OpenAI – Groq – Gemini)
-* الاتصال بعدة قواعد بيانات (SQLite – Oracle – MSSQL)
-* تنفيذ استعلامات SQL
-* إدارة ومعالجة البيانات
-* التفاعل عبر واجهة ويب جاهزة من Vanna
-* دعم الذاكرة باستخدام ChromaDB
-* التشغيل عبر Docker و Nginx
-* التشغيل كخدمة على Windows / Linux
-
-النظام جاهز للاستخدام المباشر في بيئات الإنتاج.
-
----
-
-# 🏗️ **Project Structure**
-
-```
-full_vanna_project/
-│
-├── app/
-│   ├── main.py                 # Startup File (FastAPI + VannaFastAPIServer)
-│   ├── config.py               # Global System Configuration (LLM + DB + Server)
-│   │
-│   ├── agent/
-│   │   ├── builder.py          # Creates and assembles the Vanna Agent
-│   │   ├── db.py               # Dynamic DB Provider (SQLite/Oracle/MSSQL)
-│   │   ├── llm.py              # Dynamic LLM Provider (LMStudio/OpenAI/Groq/Gemini)
-│   │   ├── memory.py           # ChromaDB Persistent Memory
-│   │   ├── tools.py            # Tool Registry (SQL, Memory, Visualization, etc.)
-│   │   ├── enrichers.py        # Context enrichers
-│   │   ├── filters.py          # Sensitive data filters
-│   │   ├── hooks.py            # Lifecycle hooks
-│   │   ├── workflow.py         # Workflow handler (/help, commands…)
-│   │   ├── port_guard.py       # Auto port-scanning & fallback
-│   │   └── security.py         # Security utilities
-│   │
-│   ├── api/
-│   │   ├── health.py           # Health Check Endpoint
-│   │   ├── db_status.py        # Database Status Endpoint
-│   │   ├── llm_status.py       # LLM Status Endpoint
-│   │   └── router.py           # API Router (mounted under /api)
-│   │
-│   └── utils/
-│       ├── helpers.py          # Helper utilities
-│       └── logger.py           # System logger
-│
-├── docker/
-│   ├── Dockerfile              # FastAPI Container
-│   ├── docker-compose.yml      # Full stack (App + Nginx)
-│   └── nginx/
-│       └── nginx.conf          # Reverse Proxy (HTTP 80)
-│
-├── services/
-│   ├── linux/                  # systemd service files
-│   └── windows/                # Windows NSSM service wrappers
-│
-├── static/                     # Static files (default Vanna UI is bundled internally)
-│
-├── requirements.txt            # Complete Dependencies
-├── .env                        # Environment Variables
-└── README.md                   # This file
-```
-
----
-
-# ⚙️ **Features**
-
-### ✓ Multiple LLM Providers
-
-* LM Studio (local models)
-* OpenAI (GPT-4 Turbo, GPT-4o…)
-* Groq (Mixtral, LLaMA-3 Turbo)
-* Google Gemini (Pro, Flash)
-
-### ✓ Multiple Database Providers
-
-* SQLite (افتراضي)
-* Oracle (via cx_Oracle)
-* MSSQL (via pyodbc)
-
-### ✓ Production-Ready Memory
-
-* ChromaDB vector memory (persistent)
-* Supports long-term agent awareness
-
-### ✓ Built-in Web UI from Vanna
-
-* Chat interface
-* SQL runner
-* Data visualization
-* Memory viewer
-* File upload
-* Agent tools inspector
-  → لا تحتاج Frontend إضافي.
-
-### ✓ DevOps Ready
-
-* Dockerfile
-* docker-compose (App + Nginx)
-* Nginx Reverse Proxy (HTTP 80)
-* systemd service (Linux)
-* NSSM-based service (Windows)
-
-### ✓ Security
-
-* Sensitive data filter
-* Config via environment variables
-* CORS configurable
-
----
-
-# 🚀 **How to Run (Local Development)**
-
-## 1️⃣ إنشاء بيئة افتراضية:
-
-```
-python -m venv venv
-```
-
-```
-venv\Scripts\activate   # Windows
-source venv/bin/activate # Linux/Mac
-```
-
-## 2️⃣ تثبيت المتطلبات:
-
-```
-pip install -r requirements.txt
-```
-
-## 3️⃣ تشغيل التطبيق:
-
-```
-python -m app.main
-```
-
-## 4️⃣ الوصول إلى الواجهة:
-
-```
-http://localhost:7777/vanna
-```
-
----
-
-# 🐳 **Running with Docker**
-
-## 1️⃣ Build & Run
-
-```
-docker-compose up --build
-```
-
-## 2️⃣ Visit Frontend
-
-```
-http://localhost/
-```
-
----
-
-# 🔧 **Environment Variables (.env)**
-
-أهم المتغيرات:
-
-```
-HOST=0.0.0.0
-PORT=7777
-
-DB_PROVIDER=sqlite
-SQLITE_DB=D:\mydb.db
-
-LLM_PROVIDER=lmstudio
-LM_STUDIO_URL=http://10.10.10.1:1234/v1
-LM_STUDIO_MODEL=gemma-3n
-
-OPENAI_API_KEY=...
-GROQ_API_KEY=...
-GEMINI_API_KEY=...
-
-AGENT_MEMORY_MAX_ITEMS=1000
-```
-
----
-
-# 💾 **Database Selection**
-
-الاختيار يتم تلقائيًا عبر:
-
-```
-DB_PROVIDER=sqlite | oracle | mssql
-```
-
----
-
-# 🤖 **LLM Selection**
-
-تغيير مزود النموذج:
-
-```
-LLM_PROVIDER=lmstudio | openai | groq | gemini
-```
-
----
-
-# 🧠 **Memory**
-
-ChromaDB يتم تشغيله تلقائياً في:
-
-```
-./chroma_db/
-```
-
----
-
-# 🧩 **API Endpoints**
-
-### Health:
-
-```
-GET /api/health
-```
-
-### LLM Status:
-
-```
-GET /api/llm-status
-```
-
-### DB Status:
-
-```
-GET /api/db-status
-```
-
----
-
-# 🛡️ **Production Deployment Notes**
-
-* يفضل وضع Nginx أمام التطبيق
-* دعم SSL يمكن إضافته بسهولة لاحقاً
-* يمكن استخدام Supervisor أو systemd أو NSSM لتشغيله كخدمة
-
----
-
-# 📞 **Support**
-
-للمساعدة أو التخصيص أو إضافة ميزات جديدة:
-يرجى التواصل مباشرة.
-
----
-
-
-# Deployment Options
-
-Method A � Docker (app + nginx)
-- Build/start: docker compose up -d --build`n- Access: http://localhost:7770 (charts served from /charts )
-- Volumes: ./chroma_db -> /app/chroma_db, ./app/static/charts -> /app/app/static/charts`n- Healthcheck: /api/health/ready`n
-Method B � Native (no Docker)
-- Ensure venv and .env exist.
-- Run: scripts\run_prod.bat (uvicorn on 0.0.0.0:7777, workers=2)
-- Access UI: http://localhost:7777`n
-
+# Majed Vanna Enterprise System
+
+Production-grade Vanna-based agent with Oracle primary DB, local LM Studio LLM, and ChromaDB vector memory. Includes semantic context injection, visualization, system governance, and full observability/guardrails.
+
+## Architecture Highlights
+- **LLM**: LM Studio (OpenAI-compatible) on host; circuit breaker + timeout/retry guardrails.
+- **DB**: Oracle primary (session pool optional) with schema-governed training; SQLite kept for tests.
+- **Memory**: ChromaDB persistent store (./chroma_db) pinned to ll-MiniLM-L6-v2 embeddings.
+- **Semantic Layer**: Merges all markdown in dbt_integration/ into prompts and published docs.
+- **Visualization**: SafeVisualizer sandboxed to pp/static/charts/<user_hash>; served via /charts.
+- **Server**: FastAPI + Vanna agent on port 7777; Nginx (docker option) on 7770.
+
+## Key Features
+- Input / SQL / Prompt safety layers; structured error envelopes with trace IDs.
+- Circuit breakers for LLM & DB; configurable timeouts and retry/backoff.
+- Payload cap middleware (MAX_PAYLOAD_SIZE_BYTES, default 1MB).
+- Security headers (HSTS, CSP, Referrer-Policy); RBAC for admin ops (dmin@example.com).
+- Metrics endpoint /api/metrics; perf history for LLM/SQL; slow-request logging.
+- Health endpoints /api/health, /api/health/ready, /api/health/perf (status + trace_id).
+- Memory ops API: backup/reset (admin only) plus UI form via MemoryManagementTool.
+- Semantic docs: semantic.py build|preview|search, outputs under dbt_integration/docs/.
+- RUNBOOK & OPS_SOP for operations and maintenance.
+
+## Run Locally (Native)
+1) Install deps: pip install -r requirements.txt
+2) Ensure .env set (see Config). Ports are fixed to 7777.
+3) Start: scripts\run_prod.bat (kills blocking PID, starts uvicorn on 0.0.0.0:7777).
+4) UI: http://localhost:7777
+
+## Run with Docker (optional)
+- Build/start: docker compose up -d --build
+- App on host port 7777 (or via Nginx 7770 if enabled). Volumes: ./chroma_db, ./app/static/charts.
+
+## Configuration (.env)
+- APP_PORT=7777, GATEWAY_PORT=7770
+- DB: DB_PROVIDER=oracle, DB_ORACLE_DSN, ORACLE_USER, ORACLE_PASSWORD, ORACLE_SCHEMA, ORACLE_ENABLE_POOL=true, ORACLE_TRAIN_OBJECTS=TABLES,VIEWS, ORACLE_TRAIN_TABLES=ALL
+- LLM: LLM_PROVIDER=lmstudio, LM_STUDIO_URL, LM_STUDIO_MODEL
+- Guardrails: DB_QUERY_TIMEOUT_MS, DB_MAX_RETRIES, DB_RETRY_BACKOFF_MS, LLM_TIMEOUT_MS, LLM_MAX_RETRIES, LLM_RETRY_BACKOFF_MS, MAX_PAYLOAD_SIZE_BYTES
+- Rate limit: RATE_LIMIT_MAX_REQUESTS, RATE_LIMIT_WINDOW_SECONDS
+
+## Admin & Governance
+- Admin endpoints: /api/system/backup-memory, /api/system/reset-memory?force=true require anna_email=admin@example.com (cookie/header).
+- Audit logs for admin actions include 	race_id and user.
+- Security headers applied globally; payloads > limit return 413.
+
+## Training & Memory
+- Reset: DELETE /api/system/reset-memory?force=true (admin) then restart.
+- Train (Oracle): python scripts/train_local.py (governed by ORACLE_TRAIN_*).
+- Vector store readiness visible in /api/health/ready.
+
+## Semantic Docs
+- Build unified docs: python semantic.py build
+- Outputs: dbt_integration/docs/semantic_docs.md/html/json
+- API: /api/semantic/docs, /api/semantic/search?query=...
+
+## Diagnostics
+- Health: /api/health/ready
+- Metrics: /api/metrics
+- Charts: /charts/<user_hash>/<file>
+
+## References
+- Operations: RUNBOOK.md
+- Maintenance SOP: OPS_SOP.md
+- Roadmap: project_docs/tasks.md
+- Changes: project_docs/CHANGELOG.md
