@@ -1,63 +1,91 @@
-خطة ممتازة وشاملة. لقد قمت بمراجعتها واعتمدتها، وأضفت عليها بعض **الضوابط الهندسية (Engineering Constraints)** لضمان توافقها مع ما تم إنجازه في المراحل السابقة (مثل توحيد المنافذ على 7777، وتثبيت نموذج التضمين).
+Roadmap & Operational Tasks
 
-إليك التوجيه النهائي باللغة الإنجليزية، جاهز للنسخ والإرسال للوكيل للبدء فوراً:
+Project: Majed Vanna Enterprise System
+Maintained by: Autonomous Agent (under contract)
+Last Updated: {auto-update by agent}
 
-***
+Legend
+- Done
+- In Progress
+- Pending
+- Blocked / Requires Human Approval
 
-**Phase 5 Implementation Directive: Semantic Intelligence & System Governance**
+------------------------------------------------------------
+Phase 1 — Core Stabilization (Done 5/5)
 
-**Objective:** Execute the full integration of the semantic layer, documentation generator, and system management APIs. This phase transforms the agent from a raw SQL executor into a context-aware, self-documenting system with robust memory management.
+1.A Input Safety Layer — Done
+- Message sanitization, metadata validation, ID rules, FastAPI middleware, SafeChatHandler
 
-**Constraints:**
-* **Port:** Maintain strict adherence to `APP_PORT=7777`.
-* **Dependencies:** Apply `requirements.txt` updates first.
-* **Pathing:** Use `dbt_integration/` as the source of truth.
+1.B SQL Safety Layer — Done
+- Single-statement enforcement, destructive keyword blocking, comment/tautology filters, SafeRunSqlTool wrapper
 
-**Execution Plan (Sequential):**
+1.C Prompt Safety Layer — Done
+- Regex/rule filters, meta-instruction blocks, control-char stripping
 
-**Step 1: Dependencies & Environment**
-* Update `requirements.txt` with: `chromadb>=0.4.0`, `sentence-transformers`, `requests`, `httpx`, `pytest`, `markdown>=3.4`, `PyYAML>=6.0`.
-* Run `pip install -r requirements.txt`.
+1.D Unified Error Handling — Done
+- API-level handlers, user-friendly error responses, internal logging hooks
 
-**Step 2: Semantic Layer Core (5.A)**
-* **Config:** Create/Update `dbt_integration/config.yaml`.
-* **Adapter:** Implement `dbt_integration/semantic_adapter.py` to parse all `.md` files (specifically `ready_files.md` and others in the directory).
-* **Context Injection:** Modify `app/agent/builder.py` to passively prepend the semantic context to the user's prompt (ensure it does not break existing safety guards).
+1.E Secrets & Environment Hardening — Done
+- Secrets moved to .env, hardcoded DSNs removed, env validation added
 
-**Step 3: Documentation Engine (5.B)**
-* **Generator:** Create `dbt_integration/doc_generator.py` (generate `.md`, `.html`, `.json` with TOC).
-* **Output:** Ensure directory `dbt_integration/docs/` exists with `.gitkeep`.
-* **CLI:** Create `semantic.py` at root supporting commands: `build`, `preview`, `search`.
-* **API:** Create `app/api/semantic.py` (Endpoints: `/docs`, `/search`) and register in `main.py`.
+------------------------------------------------------------
+Phase 2 — Stabilization II (Done 3/3)
 
-**Step 4: Memory Stabilization & System Ops (5.C)**
-* **Refactor Memory:** Replace `app/agent/memory.py` with a robust `PersistentClient`.
-    * *Critical:* Must use pinned embedding model: `all-MiniLM-L6-v2`.
-    * *Critical:* Collection name must be `vanna_memory`.
-* **System APIs:** Create `app/api/system_ops.py` and `app/api/memory_ui_handler.py`.
-    * Implement `/backup-memory` (timestamped).
-    * Implement `/reset-memory` (force option, auto-backup before delete, recreate folder).
-* **Wiring:** Register both routers in `app/main.py`.
+2.A Operational Stabilization — Done
+- Oracle SessionPool, SQLite testing stability, readiness endpoint, lightweight rate limiting
 
-**Step 5: Dashboard UI Integration (5.D)**
-* **Tool Registration:** Modify `app/agent/tools.py` to register `MemoryManagementTool`.
-* **Functionality:** It must render a UI form for Backup/Reset actions calling the new API endpoints.
+2.B Performance Stabilization — Done
+- LLM latency metrics, DB roundtrip metrics, /health/perf averages, context injection adapter (ChromaDB + LM Studio)
 
-**Step 6: Comprehensive Testing (5.E)**
-* **Test Suite:** Create `tests/` files:
-    * `test_memory_reset.py`
-    * `test_semantic_integration.py`
-    * `test_doc_generator.py`
-    * `test_semantic_api.py`
-* **Requirement:** Use `httpx` and `TestClient`. Ensure tests pass without hanging.
+2.C Test Coverage — Done
+- 17 passing tests (input/prompt/SQL validation, error handling, agent pipeline stub, sqlite run_sql)
+- pytest + pytest-asyncio installed; context injection tests added; baseline coverage achieved
 
-**Step 7: Final Post-Execution Workflow**
-1.  **Build Docs:** Run `python semantic.py build`.
-2.  **Start Backend:** Run `scripts/run_prod.bat` (Port 7777).
-3.  **Reset:** Execute `http://localhost:7777/api/system/reset-memory?force=true`.
-4.  **Retrain:** Run `python scripts/train_local.py` to populate the new stable memory.
-5.  **Restart:** Restart the server and verify the UI.
+------------------------------------------------------------
+Phase 3 — UI / UX Enhancements (Done 2/2)
 
-**Proceed with executing this plan step-by-step.**
+3.A Secure Visualization Backend — Done
+- SafeVisualizer sandboxed to app/static/charts/<user_hash>, filename sanitization, chart JSON persistence
 
-***
+3.B Frontend Visualization Integration — Done
+- Charts exposed via FastAPI StaticFiles at /charts, chart_url metadata returned, inline ChartComponent preserved
+
+------------------------------------------------------------
+Phase 4 — Deployment & Runtime (Done 3/3)
+
+4.A Containerization — Done
+- Multi-stage Dockerfile (non-root, healthcheck, uvicorn CMD), docker-compose with nginx/app, volumes for chroma_db and charts
+
+4.B Nginx Layer — Done
+- Reverse proxy with increased timeouts, security headers, WebSocket upgrades, static offload for /charts
+
+4.C Service Installation / Native Finalization — Done
+- Added scripts/run_prod.bat for native uvicorn startup (no Docker required)
+- Documented Docker (Method A) and Native (Method B) deployment paths
+
+------------------------------------------------------------
+Phase 6 — Production Hardening & Release (Done 2/2)
+
+6.D Performance Guardrails — Done
+- Configurable DB/LLM timeouts and retry/backoff
+- Payload cap middleware (MAX_PAYLOAD_SIZE_BYTES)
+
+6.E Release Hygiene — Done
+- RUNBOOK.md and OPS_SOP.md added
+- Final guardrails documented
+
+------------------------------------------------------------
+Cross-Phase Tasks (Always Active) — Ongoing
+- Maintain agent_system_knowledge.md
+- Update ADRs when decisions occur
+- Log behavioral changes
+- Enforce Agent Operating Contract, agent_rules.md, and Vanna compliance
+
+------------------------------------------------------------
+Summary Dashboard
+- Phase 1: 5/5 completed
+- Phase 2: 3/3 completed
+- Phase 3: 2/2 completed
+- Phase 4: 3/3 completed
+- Phase 6: 2/2 completed
+- Cross-phase operations: active

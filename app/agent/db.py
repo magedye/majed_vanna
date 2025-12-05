@@ -2,6 +2,8 @@ import time
 from uuid import uuid4
 
 import pandas as pd
+import asyncio
+
 from vanna.capabilities.sql_runner import RunSqlToolArgs, SqlRunner
 from vanna.core.tool import ToolResult
 from vanna.core.tool.models import ToolContext
@@ -37,6 +39,11 @@ from app.config import (
 )
 from app.agent.sql_validation import validate_sql, SQLValidationError
 from app.utils.logger import setup_logger, log_perf, record_perf_sample
+from app.config import (
+    DB_QUERY_TIMEOUT_MS,
+    DB_MAX_RETRIES,
+    DB_RETRY_BACKOFF_MS,
+)
 
 
 _oracle_connection_factory = None
@@ -97,18 +104,30 @@ def _build_oracle_runner():
             sql = args.sql.rstrip()
             if sql.endswith(";"):
                 sql = sql[:-1]
-            conn = await db_circuit.call_async(lambda: _oracle_connection_factory())
-            try:
-                cur = conn.cursor()
+            for attempt in range(DB_MAX_RETRIES + 1):
                 try:
-                    cur.execute(sql)
-                    rows = cur.fetchall()
-                    cols = [d[0] for d in cur.description] if cur.description else []
-                    return pd.DataFrame(rows, columns=cols)
-                finally:
-                    cur.close()
-            finally:
-                conn.close()
+                    async def _do_query():
+                        conn = await db_circuit.call_async(lambda: _oracle_connection_factory())
+                        try:
+                            cur = conn.cursor()
+                            try:
+                                cur.execute(sql)
+                                rows = cur.fetchall()
+                                cols = [d[0] for d in cur.description] if cur.description else []
+                                return pd.DataFrame(rows, columns=cols)
+                            finally:
+                                cur.close()
+                        finally:
+                            conn.close()
+
+                    return await asyncio.wait_for(
+                        _do_query(),
+                        timeout=DB_QUERY_TIMEOUT_MS / 1000,
+                    )
+                except Exception as exc:
+                    if attempt >= DB_MAX_RETRIES:
+                        raise
+                    await asyncio.sleep(DB_RETRY_BACKOFF_MS / 1000)
 
     return PoolingOracleRunner()
 

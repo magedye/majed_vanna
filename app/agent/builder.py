@@ -1,3 +1,4 @@
+import asyncio
 import time
 
 from vanna import Agent
@@ -15,7 +16,14 @@ from app.agent.hooks import lifecycle_hooks
 from app.agent.enrichers import context_enrichers
 from app.agent.workflow import workflow_handler
 from app.utils.logger import setup_logger, log_perf, record_perf_sample, get_trace_ids
-from app.config import LLM_MAX_PROMPT_CHARS, LLM_CONFIG, LLM_PROVIDER
+from app.config import (
+    LLM_MAX_PROMPT_CHARS,
+    LLM_CONFIG,
+    LLM_PROVIDER,
+    LLM_TIMEOUT_MS,
+    LLM_MAX_RETRIES,
+    LLM_RETRY_BACKOFF_MS,
+)
 from app.agent.implementation import LocalVanna
 from dbt_integration.semantic_adapter import semantic_loader
 from app.circuit_breaker import CircuitBreaker
@@ -139,6 +147,20 @@ class LLMLog(LlmMiddleware):
     async def on_llm_error(self, r, exc):
         llm_circuit._on_failure()
         raise exc
+
+    async def run_with_timeout(self, coro):
+        last_exc = None
+        for attempt in range(LLM_MAX_RETRIES + 1):
+            try:
+                return await asyncio.wait_for(coro, timeout=LLM_TIMEOUT_MS / 1000)
+            except Exception as exc:
+                last_exc = exc
+                if attempt >= LLM_MAX_RETRIES:
+                    llm_circuit._on_failure()
+                    raise
+                await asyncio.sleep(LLM_RETRY_BACKOFF_MS / 1000)
+        if last_exc:
+            raise last_exc
 
 class Prompt(SystemPromptBuilder):
     async def build_system_prompt(self, user, tools, conversation=None):

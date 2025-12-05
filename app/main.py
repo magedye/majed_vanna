@@ -3,6 +3,8 @@ import sys
 from pathlib import Path
 from typing import Any, Dict
 from contextlib import asynccontextmanager
+from fastapi.responses import JSONResponse
+from starlette.middleware.base import BaseHTTPMiddleware
 
 ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
@@ -20,6 +22,7 @@ from app.api.rate_limit import RateLimitMiddleware
 from app.middlewares.error_handler import JsonErrorMiddleware
 from app.middlewares.trace_context import TraceContextMiddleware
 from app.middlewares.slow_detector import SlowRequestMiddleware
+from app.middlewares.security_headers import SecurityHeadersMiddleware
 from app.agent.db import close_db
 from app.config import (
     HOST,
@@ -30,8 +33,21 @@ from app.config import (
     LLM_PROVIDER,
     RATE_LIMIT_MAX_REQUESTS,
     RATE_LIMIT_WINDOW_SECONDS,
+    MAX_PAYLOAD_SIZE_BYTES,
 )
 from app.runtime import update_runtime
+
+
+class PayloadLimitMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        body = await request.body()
+        if len(body) > MAX_PAYLOAD_SIZE_BYTES:
+            return JSONResponse(
+                status_code=413, content={"detail": "Payload too large"}
+            )
+        request._body = body
+        return await call_next(request)
+
 
 def start():
     config: Dict[str, Any] = {
@@ -49,9 +65,11 @@ def start():
     server.chat_handler = SafeChatHandler(agent)
     app = server.create_app()
     app.mount("/charts", StaticFiles(directory="app/static/charts"), name="charts")
+    app.add_middleware(PayloadLimitMiddleware)
     app.add_middleware(JsonErrorMiddleware)
     app.add_middleware(TraceContextMiddleware)
     app.add_middleware(SlowRequestMiddleware)
+    app.add_middleware(SecurityHeadersMiddleware)
     app.add_middleware(InputValidationMiddleware)
     app.add_middleware(
         RateLimitMiddleware,
