@@ -10,6 +10,7 @@ from vanna.servers.fastapi import VannaFastAPIServer
 from fastapi.staticfiles import StaticFiles
 
 from app.api.router import api_router
+from app.api import system_ops, memory_ui_handler
 from app.agent.builder import agent
 from app.agent.port_guard import find_available_port
 from app.agent.input_validation import InputValidationMiddleware, SafeChatHandler
@@ -51,6 +52,8 @@ def start():
         window_seconds=RATE_LIMIT_WINDOW_SECONDS,
     )
     app.include_router(api_router, prefix="/api")
+    app.include_router(system_ops.router)
+    app.include_router(memory_ui_handler.router)
     register_exception_handlers(app)
 
     port = find_available_port(PORT) if DEBUG else PORT

@@ -7,6 +7,7 @@ from pathlib import Path
 
 from vanna.core.registry import ToolRegistry
 from vanna.integrations.local import LocalFileSystem
+from vanna.types import UiComponent
 from vanna.tools.agent_memory import (
     SaveQuestionToolArgsTool,
     SearchSavedCorrectToolUsesTool,
@@ -14,6 +15,7 @@ from vanna.tools.agent_memory import (
 )
 from vanna.tools import VisualizeDataTool
 from app.agent.db import db_tool
+import requests
 
 
 def _safe_chart_tool():
@@ -81,3 +83,24 @@ tool_registry.register_local_tool(visualizer, access_groups=["admin", "user"])
 tool_registry.register_local_tool(SaveQuestionToolArgsTool(), access_groups=["admin"])
 tool_registry.register_local_tool(SearchSavedCorrectToolUsesTool(), access_groups=["admin", "user"])
 tool_registry.register_local_tool(SaveTextMemoryTool(), access_groups=["admin", "user"])
+
+
+class MemoryManagementTool:
+    name = "MemoryManagementTool"
+    description = "UI tool to reset or back up Vanna's memory."
+
+    async def run(self, args, context):
+        return UiComponent(
+            type="form",
+            title="Memory Manager",
+            fields=[
+                {"name": "action", "type": "select", "options": ["Backup", "Reset"]},
+                {"name": "force", "type": "checkbox", "label": "Force Reset?"},
+            ],
+            submit_label="Execute",
+            endpoint="/api/system/execute-memory-op",
+        )
+
+
+memory_tool = MemoryManagementTool()
+tool_registry.register_local_tool(memory_tool, access_groups=["admin"])
