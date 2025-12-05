@@ -6,6 +6,7 @@ import time
 from pathlib import Path
 
 from vanna.core.registry import ToolRegistry
+from vanna.core.tool import Tool
 from vanna.integrations.local import LocalFileSystem
 from vanna.components import UiComponent
 from vanna.tools.agent_memory import (
@@ -90,7 +91,7 @@ tool_registry.register_local_tool(SearchSavedCorrectToolUsesTool(), access_group
 tool_registry.register_local_tool(SaveTextMemoryTool(), access_groups=["admin", "user"])
 
 
-class MemoryManagementTool:
+class MemoryManagementTool(Tool):
     name = "MemoryManagementTool"
     description = "UI tool to reset or back up Vanna's memory."
 
@@ -105,6 +106,12 @@ class MemoryManagementTool:
             submit_label="Execute",
             endpoint="/api/system/execute-memory-op",
         )
+
+    def get_args_schema(self):
+        return None
+
+    async def execute(self, context, args):
+        return await self.run(args, context)
 
 
 memory_tool = MemoryManagementTool()

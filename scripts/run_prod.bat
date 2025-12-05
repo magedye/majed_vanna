@@ -1,20 +1,21 @@
 @echo off
 setlocal EnableExtensions EnableDelayedExpansion
-REM Phase 4.E: Strict Port Enforcement & Liberation
+pushd "%~dp0.."
 
-IF "%APP_PORT%"=="" SET APP_PORT=7777
+REM === Configure Port (defaults to 7777) ===
+if "%APP_PORT%"=="" set "APP_PORT=7777"
+echo Launching Server on Strict Port %APP_PORT%...
 
-echo >>> Checking Port %APP_PORT% availability...
-
-FOR /F "tokens=5" %%a IN ('netstat -aon ^| findstr ":%APP_PORT%"') DO (
-    IF NOT "%%a"=="" (
-        echo [WARNING] Port %APP_PORT% is busy by PID %%a. Killing it...
-        taskkill /F /PID %%a >nul 2>&1
-        timeout /t 2 >nul
-    )
+REM === Find a PID using the port (first match) ===
+set "PID="
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr /R /C:":%APP_PORT% " /C:":%APP_PORT%$"') do (
+    echo Port %APP_PORT% is in use by PID %%a. Terminating...
+    taskkill /PID %%a /F >nul 2>&1
 )
 
-echo >>> Launching Server on Strict Port %APP_PORT%...
-uvicorn app.main:app --host 0.0.0.0 --port %APP_PORT%
+REM === Start Vanna Agent ===
+echo Starting Vanna agent...
+python app/main.py
 
+popd
 endlocal

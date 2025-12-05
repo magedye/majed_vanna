@@ -92,6 +92,7 @@ LLM_RETRY_BACKOFF_MS = int(os.getenv("LLM_RETRY_BACKOFF_MS", 500))
 MAX_PAYLOAD_SIZE_BYTES = int(os.getenv("MAX_PAYLOAD_SIZE_BYTES", 1048576))
 
 # Redis cache
+CACHE_ENABLED = os.getenv("CACHE_ENABLED", "False").upper() == "TRUE"
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
 REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
 CACHE_TTL_SECONDS = int(os.getenv("CACHE_TTL_SECONDS", 600))
