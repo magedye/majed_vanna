@@ -6,7 +6,7 @@ from typing import List, Tuple
 class SemanticContextLoader:
     def __init__(self, config_path: Path = Path(__file__).parent.absolute() / "config.yaml"):
         self.config_path = Path(config_path)
-        self.base_path = self.config_path.parent.absolute()
+        self.base_path = Path(__file__).parent.resolve()
         self.config = self._load_config()
         self.sources = self._resolve_sources()
         self.context_limit = int(self.config.get("semantic_context_limit", 6000))

@@ -25,6 +25,7 @@ def _safe_chart_tool():
     class SafeVisualizer(VisualizeDataTool):
         def __init__(self):
             super().__init__(file_system=LocalFileSystem(working_directory=str(base_dir)))
+            self.base_path = base_dir
 
         @staticmethod
         def _user_hash(context) -> str:
@@ -37,11 +38,15 @@ def _safe_chart_tool():
             name = name.replace("..", "").replace("/", "").replace("\\", "")
             return name
 
+        def _ensure_user_dir(self, context):
+            user_hash = self._user_hash(context)
+            target_dir = self.base_path / user_hash
+            target_dir.mkdir(parents=True, exist_ok=True)
+            return target_dir, user_hash
+
         async def write_file(self, filename: str, content: str, context, overwrite: bool = True):
             safe_name = self._sanitize_filename(filename)
-            user_hash = self._user_hash(context)
-            target_dir = base_dir / user_hash
-            target_dir.mkdir(parents=True, exist_ok=True)
+            target_dir, user_hash = self._ensure_user_dir(context)
             target = target_dir / safe_name
             print(f"[DEBUG] SafeVisualizer writing to: {target}")
             target.write_text(content, encoding="utf-8")

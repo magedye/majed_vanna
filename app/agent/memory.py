@@ -36,12 +36,28 @@ class MyVanna(VannaBase):
         except Exception as e:
             print(f"[CRITICAL] Failed to initialize Vanna memory: {e}")
             print("Hint: Call /api/system/reset-memory?force=true")
-            raise e
+            # Fallback to mock memory to avoid None crashes
+            class _MockMemory:
+                def add(self, *_, **__):  # no-op
+                    return None
+
+                def search(self, *_, **__):  # empty search result
+                    return []
+
+                def connect_to_sqlite(self, *_, **__):  # no-op
+                    return None
+
+            self.collection = None
+            self.chroma_client = None
+            self.mock = _MockMemory()
 
 
 # Export instance to satisfy existing imports
 try:
     agent_memory = MyVanna()
+    # If fallback mock was set, expose it via agent_memory
+    if getattr(agent_memory, "mock", None):
+        agent_memory = agent_memory.mock  # type: ignore
 except Exception as exc:
     print(f"[WARNING] Memory layer failed to initialize: {exc}")
     print("[WARNING] Falling back to DemoAgentMemory (stateless).")

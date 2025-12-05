@@ -14,7 +14,11 @@ BACKUP_PATH = os.path.join(os.getcwd(), "backups")
 def test_reset_memory_creates_clean_folder():
     os.makedirs(CHROMA_PATH, exist_ok=True)
 
-    response = client.delete("/api/system/reset-memory", params={"force": "true"})
+    response = client.delete(
+        "/api/system/reset-memory",
+        params={"force": "true"},
+        cookies={"vanna_email": "admin@example.com"},
+    )
     assert response.status_code == 200
 
     assert os.path.exists(CHROMA_PATH)
@@ -26,7 +30,10 @@ def test_reset_memory_creates_clean_folder():
 def test_backup_created():
     os.makedirs(CHROMA_PATH, exist_ok=True)
 
-    res = client.post("/api/system/backup-memory")
+    res = client.post(
+        "/api/system/backup-memory",
+        cookies={"vanna_email": "admin@example.com"},
+    )
     assert res.status_code == 200
     assert os.path.exists(BACKUP_PATH)
 
