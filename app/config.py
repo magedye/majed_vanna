@@ -20,8 +20,12 @@ ORACLE_ENABLE_POOL = os.getenv("ORACLE_ENABLE_POOL", "false").lower() == "true"
 ORACLE_POOL_MIN = int(os.getenv("ORACLE_POOL_MIN", 1))
 ORACLE_POOL_MAX = int(os.getenv("ORACLE_POOL_MAX", 4))
 ORACLE_POOL_INCREMENT = int(os.getenv("ORACLE_POOL_INCREMENT", 1))
-ORACLE_TRAIN_OBJECTS = os.getenv("ORACLE_TRAIN_OBJECTS", "TABLES,VIEWS").upper().split(",")
-ORACLE_TRAIN_TABLES = os.getenv("ORACLE_TRAIN_TABLES", "ALL").upper().split(",")
+ORACLE_TRAIN_OBJECTS = [
+    o.strip().upper() for o in os.getenv("ORACLE_TRAIN_OBJECTS", "TABLES,VIEWS").split(",") if o.strip()
+]
+ORACLE_TRAIN_TABLES = [
+    t.strip().upper() for t in os.getenv("ORACLE_TRAIN_TABLES", "ALL").split(",") if t.strip()
+]
 DB_MSSQL_CONN = os.getenv("DB_MSSQL_CONN", "")
 
 LLM_PROVIDER = os.getenv("LLM_PROVIDER", "lmstudio").lower()

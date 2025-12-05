@@ -18,6 +18,7 @@ from vanna.components import (
 from vanna.tools import RunSqlTool, VisualizeDataTool
 
 from app.agent.memory import agent_memory
+from app.circuit_breaker import CircuitBreaker
 from app.config import (
     DB_MSSQL_CONN,
     DB_ORACLE_DSN,
@@ -39,11 +40,14 @@ from app.utils.logger import setup_logger, log_perf, record_perf_sample
 
 
 _oracle_connection_factory = None
+_oracle_pool = None
+db_circuit = CircuitBreaker("db", failure_threshold=3, reset_timeout=30)
 
 
 def _build_oracle_runner():
     """Initialize Oracle runner with optional pooling and shared connection factory."""
     global _oracle_connection_factory
+    global _oracle_pool
     try:
         import oracledb
     except Exception as e:
@@ -73,6 +77,7 @@ def _build_oracle_runner():
                 threaded=True,
                 getmode=oracledb.SPOOL_ATTRVAL_WAIT,
             )
+            _oracle_pool = pool
         except Exception as e:
             print("DB init error: oracle pool failed", e)
             _oracle_connection_factory = None
@@ -87,21 +92,28 @@ def _build_oracle_runner():
 
     class PoolingOracleRunner(SqlRunner):
         async def run_sql(self, args: RunSqlToolArgs, context: ToolContext) -> pd.DataFrame:
+            if not db_circuit._can_pass():
+                raise RuntimeError("CircuitBreaker[db] is OPEN")
             sql = args.sql.rstrip()
             if sql.endswith(";"):
                 sql = sql[:-1]
-            conn = _oracle_connection_factory()
             try:
-                cur = conn.cursor()
+                conn = await db_circuit.call_async(lambda: _oracle_connection_factory())
                 try:
-                    cur.execute(sql)
-                    rows = cur.fetchall()
-                    cols = [d[0] for d in cur.description] if cur.description else []
-                    return pd.DataFrame(rows, columns=cols)
+                    cur = conn.cursor()
+                    try:
+                        cur.execute(sql)
+                        rows = cur.fetchall()
+                        cols = [d[0] for d in cur.description] if cur.description else []
+                        db_circuit._on_success()
+                        return pd.DataFrame(rows, columns=cols)
+                    finally:
+                        cur.close()
                 finally:
-                    cur.close()
-            finally:
-                conn.close()
+                    conn.close()
+            except Exception:
+                db_circuit._on_failure()
+                raise
 
     return PoolingOracleRunner()
 
@@ -163,16 +175,23 @@ def _load_allowed_tables():
             conn = _oracle_connection_factory()
             try:
                 cur = conn.cursor()
-                obj_types = [o.strip().upper() for o in ORACLE_TRAIN_OBJECTS if o.strip()]
-                if not obj_types:
-                    obj_types = ["TABLE", "VIEW"]
-                type_list = ", ".join(f"'{t}'" for t in obj_types)
+                normalized_obj_types = []
+                for o in ORACLE_TRAIN_OBJECTS:
+                    if o in {"TABLES", "TABLE"}:
+                        normalized_obj_types.append("TABLE")
+                    elif o in {"VIEWS", "VIEW"}:
+                        normalized_obj_types.append("VIEW")
+                    elif o:
+                        normalized_obj_types.append(o)
+                if not normalized_obj_types:
+                    normalized_obj_types = ["TABLE", "VIEW"]
+                type_list = ", ".join(f"'{t}'" for t in normalized_obj_types)
                 schema = (ORACLE_SCHEMA or ORACLE_USER or "").upper()
                 query = (
                     "SELECT object_name FROM all_objects "
                     f"WHERE owner = '{schema}' AND object_type IN ({type_list})"
                 )
-                train_tables = [t.strip().upper() for t in ORACLE_TRAIN_TABLES if t.strip()]
+                train_tables = ORACLE_TRAIN_TABLES
                 if train_tables and train_tables != ["ALL"]:
                     table_list = ", ".join(f"'{t}'" for t in train_tables)
                     query += f" AND object_name IN ({table_list})"
@@ -241,6 +260,7 @@ class SafeRunSqlTool(RunSqlTool):
                 "provider": DB_PROVIDER,
                 "request_id": getattr(context, "request_id", None),
                 "conversation_id": getattr(context, "conversation_id", None),
+                "trace_id": getattr(context, "trace_id", None),
             },
         )
         record_perf_sample("sql_ms", duration_ms)
@@ -301,3 +321,11 @@ async def test_connections() -> dict:
             "provider": DB_PROVIDER,
             "message": str(exc),
         }
+
+
+def close_db():
+    try:
+        if _oracle_pool:
+            _oracle_pool.close()
+    except Exception:
+        pass

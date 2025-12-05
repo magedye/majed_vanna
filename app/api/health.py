@@ -3,8 +3,9 @@ from datetime import datetime
 from fastapi import APIRouter
 
 from app.agent.db import test_connections
+from app.agent.builder import knowledge_base
 from app.config import DB_PROVIDER, LLM_CONFIG, LLM_PROVIDER, PORT
-from app.utils.logger import perf_snapshot
+from app.utils.logger import perf_snapshot, get_trace_ids
 from app.runtime import state, uptime_seconds
 
 router = APIRouter()
@@ -33,11 +34,24 @@ def health_check():
 @router.get("/health/ready")
 async def readiness_check():
     db_status = await test_connections()
+    llm_vals = list(perf_snapshot["llm_ms"])
+    llm_avg = round(sum(llm_vals) / len(llm_vals), 2) if llm_vals else None
+    vector_ready = False
+    try:
+        df = knowledge_base.get_training_data()
+        vector_ready = bool(df is not None and not df.empty)
+    except Exception:
+        vector_ready = False
+    trace_id, _ = get_trace_ids()
     overall = "ok" if db_status.get("status") == "ok" else "error"
     return {
         "status": overall,
         "service": "vanna",
         "db": db_status,
+        "llm": {"status": "ok" if llm_avg else "unknown", "latency_ms": llm_avg},
+        "vector_store": {"ready": vector_ready},
+        "trace_id": trace_id,
+        "uptime_seconds": round(uptime_seconds(), 2),
         "timestamp": datetime.utcnow().isoformat(),
     }
 

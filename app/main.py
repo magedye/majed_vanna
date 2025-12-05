@@ -2,6 +2,7 @@ import os
 import sys
 from pathlib import Path
 from typing import Any, Dict
+from contextlib import asynccontextmanager
 
 ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
@@ -11,11 +12,15 @@ from vanna.servers.fastapi import VannaFastAPIServer
 from fastapi.staticfiles import StaticFiles
 
 from app.api.router import api_router
-from app.api import system_ops, memory_ui_handler, semantic
+from app.api import system_ops, memory_ui_handler, semantic, metrics
 from app.agent.builder import agent
 from app.agent.input_validation import InputValidationMiddleware, SafeChatHandler
 from app.api.error_handlers import register_exception_handlers
 from app.api.rate_limit import RateLimitMiddleware
+from app.middlewares.error_handler import JsonErrorMiddleware
+from app.middlewares.trace_context import TraceContextMiddleware
+from app.middlewares.slow_detector import SlowRequestMiddleware
+from app.agent.db import close_db
 from app.config import (
     HOST,
     DEBUG,
@@ -44,6 +49,9 @@ def start():
     server.chat_handler = SafeChatHandler(agent)
     app = server.create_app()
     app.mount("/charts", StaticFiles(directory="app/static/charts"), name="charts")
+    app.add_middleware(JsonErrorMiddleware)
+    app.add_middleware(TraceContextMiddleware)
+    app.add_middleware(SlowRequestMiddleware)
     app.add_middleware(InputValidationMiddleware)
     app.add_middleware(
         RateLimitMiddleware,
@@ -54,6 +62,7 @@ def start():
     app.include_router(system_ops.router)
     app.include_router(memory_ui_handler.router)
     app.include_router(semantic.router)
+    app.include_router(metrics.router)
     register_exception_handlers(app)
 
     port = int(os.getenv("APP_PORT", "7777"))
@@ -73,7 +82,14 @@ def start():
     print(f"  LLM Provider: {LLM_PROVIDER} ({model_name})")
     print(f"  DB Provider: {DB_PROVIDER} (sqlite path={DB_SQLITE if DB_PROVIDER == 'sqlite' else 'n/a'})")
 
+    async def lifespan(app):
+        try:
+            yield
+        finally:
+            close_db()
+
     server.create_app = lambda: app
+    app.router.lifespan_context = asynccontextmanager(lifespan)
     server.run(host=HOST, port=port)
 
 if __name__=="__main__":

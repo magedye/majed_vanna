@@ -14,10 +14,11 @@ from app.agent.filters import conversation_filters
 from app.agent.hooks import lifecycle_hooks
 from app.agent.enrichers import context_enrichers
 from app.agent.workflow import workflow_handler
-from app.utils.logger import setup_logger, log_perf, record_perf_sample
+from app.utils.logger import setup_logger, log_perf, record_perf_sample, get_trace_ids
 from app.config import LLM_MAX_PROMPT_CHARS, LLM_CONFIG, LLM_PROVIDER
 from app.agent.implementation import LocalVanna
 from dbt_integration.semantic_adapter import semantic_loader
+from app.circuit_breaker import CircuitBreaker
 
 class FileAuditLogger(AuditLogger):
     def __init__(self,path="audit.log"): self.path=path
@@ -25,6 +26,7 @@ class FileAuditLogger(AuditLogger):
         with open(self.path,"a") as f: f.write(str(e.__dict__)+"\n")
 
 perf_logger = setup_logger(__name__)
+llm_circuit = CircuitBreaker("llm", failure_threshold=3, reset_timeout=30)
 kb_config = {
     "path": "./chroma_db",
     "api_key": "lm-studio",
@@ -55,6 +57,8 @@ def _collect_schema_text(limit_chars: int = 12000) -> str:
 
 class LLMLog(LlmMiddleware):
     async def before_llm_request(self,r):
+        if not llm_circuit._can_pass():
+            raise RuntimeError("CircuitBreaker[llm] is OPEN")
         r.metadata = r.metadata or {}
         r.metadata["perf_start"] = time.time()
 
@@ -108,10 +112,12 @@ class LLMLog(LlmMiddleware):
                 "system_chars": system_chars,
                 "truncated": truncated,
                 "limit": LLM_MAX_PROMPT_CHARS,
+                "trace_id": get_trace_ids()[0],
             },
         )
         return r
     async def after_llm_response(self,r,res):
+        llm_circuit._on_success()
         start = (r.metadata or {}).pop("perf_start", None)
         if start:
             duration_ms = round((time.time() - start) * 1000, 2)
@@ -124,10 +130,15 @@ class LLMLog(LlmMiddleware):
                     or getattr(r, "model", None),
                     "request_id": getattr(r, "request_id", None),
                     "conversation_id": getattr(r, "conversation_id", None),
+                    "trace_id": get_trace_ids()[0],
                 },
             )
             record_perf_sample("llm_ms", duration_ms)
         return res
+
+    async def on_llm_error(self, r, exc):
+        llm_circuit._on_failure()
+        raise exc
 
 class Prompt(SystemPromptBuilder):
     async def build_system_prompt(self, user, tools, conversation=None):
