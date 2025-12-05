@@ -1,12 +1,17 @@
 ## **Changelog**
 
 ### **Unreleased (current)**
-- Phase 4 planning: deployment and production hardening (Docker/Nginx/services)
+- Phase 4 complete (native + docker paths documented)
 
 ### **Phase 2**
 - Phase 2.B: Added LLM/SQL perf timers, averaged metrics in `/health/perf`; context injection adapter wired to local ChromaDB + LM Studio
 - Phase 2.A: Added readiness endpoint and per-IP rate limiting; introduced Oracle SessionPool runner with env-based credentials; completed Phase 1 foundation wrap-up and documentation updates
 - Phase 2.C: Added pytest suite (17 passing) covering input/prompt/SQL validation, error handling, agent pipeline stub, sqlite run_sql smoke; added context injection tests
+
+### **Phase 4**
+- Phase 4.C: Added native production script `scripts/run_prod.bat` (uvicorn, env setup) and documentation for non-Docker deployment
+- Phase 4.B: Nginx reverse proxy with extended timeouts, security headers, WebSocket upgrades, and static offload for `/charts`
+- Phase 4.A: Multi-stage Dockerfile (non-root, healthcheck to `/api/health/ready`), docker-compose with app + nginx, volumes for chroma_db and charts
 
 ### **Phase 3**
 - Phase 3.B: Exposed chart assets via FastAPI StaticFiles (`/charts`) and added `chart_url` metadata while keeping inline ChartComponent rendering

@@ -5,91 +5,66 @@ Maintained by: Autonomous Agent (under contract)
 Last Updated: {auto-update by agent}
 
 Legend
-- ƒo. Done
-- dYs In Progress
-- ƒ?3 Pending
-- ƒ>" Blocked / Requires Human Approval
+- Done
+- In Progress
+- Pending
+- Blocked / Requires Human Approval
 
 ------------------------------------------------------------
-Phase 1 ƒ?" Core Stabilization (ƒo. 5/5 complete)
+Phase 1 — Core Stabilization (Done 5/5)
 
-1.A Input Safety Layer ƒ?" ƒo. Done
-- Message sanitization
-- Metadata validation
-- ID rules
-- FastAPI middleware integration
-- SafeChatHandler activation
+1.A Input Safety Layer — Done
+- Message sanitization, metadata validation, ID rules, FastAPI middleware, SafeChatHandler
 
-1.B SQL Safety Layer ƒ?" ƒo. Done
-- Single-statement enforcement
-- Block destructive keywords
-- Comment + tautology filters
-- SafeRunSqlTool wrapper
+1.B SQL Safety Layer — Done
+- Single-statement enforcement, destructive keyword blocking, comment/tautology filters, SafeRunSqlTool wrapper
 
-1.C Prompt Safety Layer ƒ?" ƒo. Done
-- Regex/rule filters
-- Meta-instruction blocks
-- Control-char stripping
+1.C Prompt Safety Layer — Done
+- Regex/rule filters, meta-instruction blocks, control-char stripping
 
-1.D Unified Error Handling ƒ?" ƒo. Done
-- API-level handlers
-- User-friendly error responses
-- Internal logging hooks
+1.D Unified Error Handling — Done
+- API-level handlers, user-friendly error responses, internal logging hooks
 
-1.E Secrets & Environment Hardening ƒ?" ƒo. Done
-- Secrets moved to .env
-- Hardcoded DSNs removed
-- Env validation added
+1.E Secrets & Environment Hardening — Done
+- Secrets moved to .env, hardcoded DSNs removed, env validation added
 
 ------------------------------------------------------------
-Phase 2 ƒ?" Stabilization II (ƒo. 3/3 complete)
+Phase 2 — Stabilization II (Done 3/3)
 
-2.A Operational Stabilization ƒ?" ƒo. Done
-- Oracle connection pooling (SessionPool)
-- SQLite testing mode stability (baseline)
-- Health readiness endpoint
-- Lightweight request rate limiting
+2.A Operational Stabilization — Done
+- Oracle SessionPool, SQLite testing stability, readiness endpoint, lightweight rate limiting
 
-2.B Performance Stabilization ƒ?" ƒo. Done
-- LLM latency path measurement
-- DB roundtrip metrics
-- Perf logs and `/health/perf` endpoint with averages
-- Context injection adapter wired to local ChromaDB + LM Studio
+2.B Performance Stabilization — Done
+- LLM latency metrics, DB roundtrip metrics, /health/perf averages, context injection adapter (ChromaDB + LM Studio)
 
-2.C Test Coverage ƒ?" ƒo. Done
-- 17 passing tests (input, prompt, SQL validation, error handling, agent pipeline stub, sqlite run_sql)
-- pytest + pytest-asyncio installed
-- Added context injection tests (schema injection, truncation protection, logging)
-- Coverage target baseline achieved (~smoke coverage)
+2.C Test Coverage — Done
+- 17 passing tests (input/prompt/SQL validation, error handling, agent pipeline stub, sqlite run_sql)
+- pytest + pytest-asyncio installed; context injection tests added; baseline coverage achieved
 
 ------------------------------------------------------------
-Phase 3 ƒ?" UI / UX Enhancements
-3.A Secure Visualization Backend ƒo. Done
-- SafeVisualizer writes to sandboxed `app/static/charts/<user_hash>/`
-- Filename sanitization and user hashing guard traversal
-- Chart payload persisted as JSON for reuse
+Phase 3 — UI / UX Enhancements (Done 2/2)
 
-3.B Frontend Visualization Integration ƒo. Done
-- Charts exposed via FastAPI StaticFiles at `/charts`
-- SafeVisualizer returns `chart_url` metadata for saved outputs
-- Inline ChartComponent preserved for immediate rendering
+3.A Secure Visualization Backend — Done
+- SafeVisualizer sandboxed to app/static/charts/<user_hash>, filename sanitization, chart JSON persistence
+
+3.B Frontend Visualization Integration — Done
+- Charts exposed via FastAPI StaticFiles at /charts, chart_url metadata returned, inline ChartComponent preserved
 
 ------------------------------------------------------------
-Phase 4 ƒ?" Deployment & Runtime
-4.A Containerization ƒ?" ƒ?3 Pending
-- Dockerfile refinement
-- Multi-stage builds
+Phase 4 — Deployment & Runtime (Done 3/3)
 
-4.B Nginx Layer ƒ?" ƒ?3 Pending
-- Reverse proxy
-- Static asset handling
+4.A Containerization — Done
+- Multi-stage Dockerfile (non-root, healthcheck, uvicorn CMD), docker-compose with nginx/app, volumes for chroma_db and charts
 
-4.C Service Installation ƒ?" ƒ?3 Pending
-- Windows service scripts
-- Linux systemd integration
+4.B Nginx Layer — Done
+- Reverse proxy with increased timeouts, security headers, WebSocket upgrades, static offload for /charts
+
+4.C Service Installation / Native Finalization — Done
+- Added scripts/run_prod.bat for native uvicorn startup (no Docker required)
+- Documented Docker (Method A) and Native (Method B) deployment paths
 
 ------------------------------------------------------------
-Cross-Phase Tasks (Always Active) ƒ?" dYs Ongoing
+Cross-Phase Tasks (Always Active) — Ongoing
 - Maintain agent_system_knowledge.md
 - Update ADRs when decisions occur
 - Log behavioral changes
@@ -99,6 +74,6 @@ Cross-Phase Tasks (Always Active) ƒ?" dYs Ongoing
 Summary Dashboard
 - Phase 1: 5/5 completed
 - Phase 2: 3/3 completed
-- Phase 3: 2/2 completed
-- Phase 4: 0/3 completed
+-> Phase 3: 2/2 completed
+- Phase 4: 3/3 completed
 - Cross-phase operations: active

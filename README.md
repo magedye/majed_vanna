@@ -257,3 +257,14 @@ GET /api/db-status
 يرجى التواصل مباشرة.
 
 ---
+
+
+# Deployment Options
+
+Method A � Docker (app + nginx)
+- Build/start: docker compose up -d --build`n- Access: http://localhost:8080 (charts served from /charts )
+- Volumes: ./chroma_db -> /app/chroma_db, ./app/static/charts -> /app/app/static/charts`n- Healthcheck: /api/health/ready`n
+Method B � Native (no Docker)
+- Ensure venv and .env exist.
+- Run: scripts\run_prod.bat (uvicorn on 0.0.0.0:8000, workers=2)
+- Access UI: http://localhost:8000`n

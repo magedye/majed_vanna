@@ -36,6 +36,11 @@ Enable secure, enterprise-grade natural language analytics.
 - Visualization relies on LocalFileSystem sandbox; LLM roundtrip latency remains high on local hardware (~20–200s).
 - Next step (Phase 3.B): expose `app/static/charts` via FastAPI StaticFiles and return renderable Plotly payloads/URLs to the UI.
 
+#### **12. Operational Notes (Phase 4 - Deployment & Runtime)**
+- Docker path: multi-stage Dockerfile (non-root, healthcheck to `/api/health/ready`), docker-compose with nginx + app, volumes for `./chroma_db` and `./app/static/charts`.
+- Nginx path: reverse proxy on 8080 with increased timeouts (600s, WS 86400s), security headers, WebSocket upgrades, static offload for `/charts`.
+- Native path: `scripts/run_prod.bat` starts uvicorn (`app.main:app`) on 0.0.0.0:8000 with workers=2; activate venv if present.
+
 #### **3. Execution Phases**
 The agent must always operate inside the currently authorized phase.
 
