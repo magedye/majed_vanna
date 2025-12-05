@@ -2,6 +2,7 @@ import os
 import chromadb
 from chromadb.utils import embedding_functions
 from vanna.legacy.base.base import VannaBase
+from vanna.integrations.local.agent_memory import DemoAgentMemory
 
 # Fixed embedding function (384-dim)
 FIXED_EMBEDDING_FUNCTION = embedding_functions.SentenceTransformerEmbeddingFunction(
@@ -41,5 +42,7 @@ class MyVanna(VannaBase):
 # Export instance to satisfy existing imports
 try:
     agent_memory = MyVanna()
-except Exception:
-    agent_memory = None
+except Exception as exc:
+    print(f"[WARNING] Memory layer failed to initialize: {exc}")
+    print("[WARNING] Falling back to DemoAgentMemory (stateless).")
+    agent_memory = DemoAgentMemory(max_items=1000)

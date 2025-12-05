@@ -1,6 +1,6 @@
-from vanna import Agent
 import time
 
+from vanna import Agent
 from vanna.core.system_prompt import SystemPromptBuilder
 from vanna.core.middleware import LlmMiddleware
 from vanna.core.audit import AuditLogger, AuditEvent
@@ -17,6 +17,7 @@ from app.agent.workflow import workflow_handler
 from app.utils.logger import setup_logger, log_perf, record_perf_sample
 from app.config import LLM_MAX_PROMPT_CHARS, LLM_CONFIG, LLM_PROVIDER
 from app.agent.implementation import LocalVanna
+from dbt_integration.semantic_adapter import semantic_loader
 
 class FileAuditLogger(AuditLogger):
     def __init__(self,path="audit.log"): self.path=path
@@ -63,8 +64,12 @@ class LLMLog(LlmMiddleware):
             user_msg = messages[-1]
             content = getattr(user_msg, "content", "") or ""
             schema_text = _collect_schema_text()
+            semantic_text = semantic_loader.build_context()
             if schema_text:
-                user_msg.content = f"Use this schema:\n{schema_text}\n\nQuestion: {content}"
+                content = f"Use this schema:\n{schema_text}\n\nQuestion: {content}"
+            if semantic_text:
+                content = f"{semantic_text}\n\n{content}"
+            user_msg.content = content
 
         # Prompt size logging / limiting (protect system messages; trim oldest history first)
         system_msgs = [m for m in messages if getattr(m, "role", "") == "system"]

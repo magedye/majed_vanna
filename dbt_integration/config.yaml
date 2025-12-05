@@ -1,0 +1,17 @@
+semantic_sources:
+  - "./dbt_integration/semantic_layer_final_plan.md"
+  - "./dbt_integration/documentation_index.md"
+  - "./dbt_integration/quick_start_guide.md"
+  - "./dbt_integration/short_summary.md"
+  - "./dbt_integration/code_implementation_package.md"
+  - "./dbt_integration/vana_cbtcore.md"
+  - "./dbt_integration/ready_files.md"
+
+documentation_output_path: "./dbt_integration/docs/"
+documentation_formats:
+  - "md"
+  - "html"
+  - "json"
+
+# Max semantic context size injected into LLM prompt (characters)
+semantic_context_limit: 6000

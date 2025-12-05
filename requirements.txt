@@ -25,6 +25,15 @@ certifi==2025.11.12
 cffi==2.0.0
 charset-normalizer==3.4.4
 chromadb==1.3.5
+chromadb>=0.4.0
+sentence-transformers
+requests
+httpx
+pytest
+markdown>=3.4
+PyYAML>=6.0
+oracledb>=2.0.0
+cx_Oracle
 click==8.3.0
 colorama==0.4.6
 coloredlogs==15.0.1

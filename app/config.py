@@ -15,9 +15,13 @@ DB_ORACLE_DSN = os.getenv("DB_ORACLE_DSN", "")
 ORACLE_USER = os.getenv("ORACLE_USER", "")
 ORACLE_PASSWORD = os.getenv("ORACLE_PASSWORD", "")
 ORACLE_DSN = os.getenv("ORACLE_DSN", "")
+ORACLE_SCHEMA = os.getenv("ORACLE_SCHEMA", ORACLE_USER)
+ORACLE_ENABLE_POOL = os.getenv("ORACLE_ENABLE_POOL", "false").lower() == "true"
 ORACLE_POOL_MIN = int(os.getenv("ORACLE_POOL_MIN", 1))
 ORACLE_POOL_MAX = int(os.getenv("ORACLE_POOL_MAX", 4))
 ORACLE_POOL_INCREMENT = int(os.getenv("ORACLE_POOL_INCREMENT", 1))
+ORACLE_TRAIN_OBJECTS = os.getenv("ORACLE_TRAIN_OBJECTS", "TABLES,VIEWS").upper().split(",")
+ORACLE_TRAIN_TABLES = os.getenv("ORACLE_TRAIN_TABLES", "ALL").upper().split(",")
 DB_MSSQL_CONN = os.getenv("DB_MSSQL_CONN", "")
 
 LLM_PROVIDER = os.getenv("LLM_PROVIDER", "lmstudio").lower()
@@ -51,10 +55,10 @@ if DB_PROVIDER not in SUPPORTED_DB_PROVIDERS:
 
 if DB_PROVIDER == "oracle":
     has_dsn_string = bool(DB_ORACLE_DSN)
-    has_split_creds = bool(ORACLE_USER and ORACLE_PASSWORD and ORACLE_DSN)
+    has_split_creds = bool(ORACLE_USER and ORACLE_PASSWORD and (ORACLE_DSN or ORACLE_SCHEMA))
     if not (has_dsn_string or has_split_creds):
         raise RuntimeError(
-            "Oracle configuration requires either DB_ORACLE_DSN or ORACLE_USER/ORACLE_PASSWORD/ORACLE_DSN"
+            "Oracle configuration requires DB_ORACLE_DSN or ORACLE_USER/ORACLE_PASSWORD/ORACLE_DSN"
         )
 if DB_PROVIDER == "mssql" and not DB_MSSQL_CONN:
     raise RuntimeError("DB_MSSQL_CONN is required when DB_PROVIDER=mssql")

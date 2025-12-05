@@ -26,62 +26,71 @@ from app.config import (
     ORACLE_USER,
     ORACLE_PASSWORD,
     ORACLE_DSN,
+    ORACLE_SCHEMA,
+    ORACLE_ENABLE_POOL,
     ORACLE_POOL_MIN,
     ORACLE_POOL_MAX,
     ORACLE_POOL_INCREMENT,
+    ORACLE_TRAIN_OBJECTS,
+    ORACLE_TRAIN_TABLES,
 )
 from app.agent.sql_validation import validate_sql, SQLValidationError
 from app.utils.logger import setup_logger, log_perf, record_perf_sample
 
 
+_oracle_connection_factory = None
+
+
 def _build_oracle_runner():
+    """Initialize Oracle runner with optional pooling and shared connection factory."""
+    global _oracle_connection_factory
     try:
         import oracledb
     except Exception as e:
         print("DB init error: oracledb not available", e)
+        _oracle_connection_factory = None
         return None
 
     user = ORACLE_USER
     password = ORACLE_PASSWORD
-    dsn = ORACLE_DSN
-
-    if (not user or not password or not dsn) and DB_ORACLE_DSN:
-        try:
-            creds, dsn_part = DB_ORACLE_DSN.split("@", 1)
-            user, password = creds.split("/", 1)
-            dsn = dsn_part
-        except Exception:
-            print("DB init error: unable to parse DB_ORACLE_DSN")
-            return None
+    dsn = DB_ORACLE_DSN or ORACLE_DSN
 
     if not (user and password and dsn):
         print("DB init error: oracle credentials are incomplete")
+        _oracle_connection_factory = None
         return None
 
-    try:
-        pool = oracledb.SessionPool(
-            user=user,
-            password=password,
-            dsn=dsn,
-            min=ORACLE_POOL_MIN,
-            max=ORACLE_POOL_MAX,
-            increment=ORACLE_POOL_INCREMENT,
-            threaded=True,
-            getmode=oracledb.SPOOL_ATTRVAL_WAIT,
-        )
-    except Exception as e:
-        print("DB init error: oracle pool failed", e)
-        return None
+    pool = None
+    if ORACLE_ENABLE_POOL:
+        try:
+            pool = oracledb.SessionPool(
+                user=user,
+                password=password,
+                dsn=dsn,
+                min=ORACLE_POOL_MIN,
+                max=ORACLE_POOL_MAX,
+                increment=ORACLE_POOL_INCREMENT,
+                threaded=True,
+                getmode=oracledb.SPOOL_ATTRVAL_WAIT,
+            )
+        except Exception as e:
+            print("DB init error: oracle pool failed", e)
+            _oracle_connection_factory = None
+            return None
+
+    def _get_connection():
+        if pool:
+            return pool.acquire()
+        return oracledb.connect(user=user, password=password, dsn=dsn)
+
+    _oracle_connection_factory = _get_connection
 
     class PoolingOracleRunner(SqlRunner):
-        def __init__(self, pool):
-            self.pool = pool
-
         async def run_sql(self, args: RunSqlToolArgs, context: ToolContext) -> pd.DataFrame:
             sql = args.sql.rstrip()
             if sql.endswith(";"):
                 sql = sql[:-1]
-            conn = self.pool.acquire()
+            conn = _oracle_connection_factory()
             try:
                 cur = conn.cursor()
                 try:
@@ -94,7 +103,7 @@ def _build_oracle_runner():
             finally:
                 conn.close()
 
-    return PoolingOracleRunner(pool)
+    return PoolingOracleRunner()
 
 
 def get_sql_runner():
@@ -122,7 +131,7 @@ def _extract_tables(sql: str):
     import re
 
     candidates = re.findall(
-        r"\\bfrom\\s+([\\w\\.\\\"]+)|\\bjoin\\s+([\\w\\.\\\"]+)", sql, flags=re.IGNORECASE
+        r"\bfrom\s+([\w\.\"]+)|\bjoin\s+([\w\.\"]+)", sql, flags=re.IGNORECASE
     )
     tables = []
     for a, b in candidates:
@@ -150,7 +159,27 @@ def _load_allowed_tables():
                 tables = {row[0].lower() for row in cur.fetchall()}
             finally:
                 conn.close()
-        # For Oracle/MSSQL, we could extend with metadata queries if credentials exist.
+        if DB_PROVIDER == "oracle" and _oracle_connection_factory:
+            conn = _oracle_connection_factory()
+            try:
+                cur = conn.cursor()
+                obj_types = [o.strip().upper() for o in ORACLE_TRAIN_OBJECTS if o.strip()]
+                if not obj_types:
+                    obj_types = ["TABLE", "VIEW"]
+                type_list = ", ".join(f"'{t}'" for t in obj_types)
+                schema = (ORACLE_SCHEMA or ORACLE_USER or "").upper()
+                query = (
+                    "SELECT object_name FROM all_objects "
+                    f"WHERE owner = '{schema}' AND object_type IN ({type_list})"
+                )
+                train_tables = [t.strip().upper() for t in ORACLE_TRAIN_TABLES if t.strip()]
+                if train_tables and train_tables != ["ALL"]:
+                    table_list = ", ".join(f"'{t}'" for t in train_tables)
+                    query += f" AND object_name IN ({table_list})"
+                cur.execute(query)
+                tables = {row[0].lower() for row in cur.fetchall()}
+            finally:
+                conn.close()
     except Exception as e:
         log_perf(perf_logger, "schema_guard.error", {"error": str(e)})
     _allowed_tables_cache = tables

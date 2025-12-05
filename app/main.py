@@ -11,7 +11,7 @@ from vanna.servers.fastapi import VannaFastAPIServer
 from fastapi.staticfiles import StaticFiles
 
 from app.api.router import api_router
-from app.api import system_ops, memory_ui_handler
+from app.api import system_ops, memory_ui_handler, semantic
 from app.agent.builder import agent
 from app.agent.input_validation import InputValidationMiddleware, SafeChatHandler
 from app.api.error_handlers import register_exception_handlers
@@ -53,6 +53,7 @@ def start():
     app.include_router(api_router, prefix="/api")
     app.include_router(system_ops.router)
     app.include_router(memory_ui_handler.router)
+    app.include_router(semantic.router)
     register_exception_handlers(app)
 
     port = int(os.getenv("APP_PORT", "7777"))
