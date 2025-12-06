@@ -1,5 +1,7 @@
 import asyncio
+import json
 import time
+from pathlib import Path
 
 from vanna import Agent
 from vanna.core.system_prompt import SystemPromptBuilder
@@ -16,6 +18,7 @@ from app.agent.hooks import lifecycle_hooks
 from app.agent.enrichers import context_enrichers
 from app.agent.workflow import workflow_handler
 from app.utils.logger import setup_logger, log_perf, record_perf_sample, get_trace_ids
+import app.agent.db as agent_db
 from app.config import (
     LLM_MAX_PROMPT_CHARS,
     LLM_CONFIG,
@@ -26,12 +29,27 @@ from app.config import (
 )
 from app.agent.implementation import LocalVanna
 from dbt_integration.semantic_adapter import semantic_loader
+from dbt_integration.dbt_loader import DbtMetadataProvider
 from app.circuit_breaker import CircuitBreaker
 
 class FileAuditLogger(AuditLogger):
-    def __init__(self,path="audit.log"): self.path=path
-    async def log_event(self,e:AuditEvent):
-        with open(self.path,"a") as f: f.write(str(e.__dict__)+"\n")
+    def __init__(self, path: str = "audit.log"):
+        self.path = Path(path)
+
+    async def log_event(self, e: AuditEvent):
+        """Persist audit events without breaking the main flow on encoding errors."""
+        try:
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            payload = json.dumps(e.__dict__, ensure_ascii=False, default=str)
+            with open(self.path, "a", encoding="utf-8", errors="replace") as f:
+                f.write(payload + "\n")
+        except Exception:
+            try:
+                with open(self.path, "a", encoding="utf-8", errors="ignore") as f:
+                    f.write(f"{e}\n")
+            except Exception:
+                # Never allow audit logging failures to bubble up
+                pass
 
 perf_logger = setup_logger(__name__)
 llm_circuit = CircuitBreaker("llm", failure_threshold=3, reset_timeout=30)
@@ -42,6 +60,17 @@ kb_config = {
     "model": LLM_CONFIG.get(LLM_PROVIDER, {}).get("model", "gemma-3n"),
 }
 knowledge_base = LocalVanna(config=kb_config)
+dbt_provider = DbtMetadataProvider(
+    manifest_path=Path("dbt/target/manifest.json"),
+    catalog_path=Path("dbt/target/catalog.json"),
+    run_results_path=Path("dbt/target/run_results.json"),
+    provider="oracle",
+    context_limit=4000,
+)
+try:
+    dbt_provider.load()
+except Exception as e:
+    print(f"[DBT] load skipped: {e}")
 
 
 def _collect_schema_text(limit_chars: int = 12000) -> str:
@@ -77,11 +106,33 @@ class LLMLog(LlmMiddleware):
             content = getattr(user_msg, "content", "") or ""
             schema_text = _collect_schema_text()
             semantic_text = semantic_loader.build_context()
-            if schema_text:
-                content = f"Use this schema:\n{schema_text}\n\nQuestion: {content}"
+            dbt_text = ""
+            try:
+                dbt_text = dbt_provider.build_context()
+            except Exception:
+                dbt_text = ""
+            allowed_tables = []
+            try:
+                allowed_tables = sorted(agent_db._load_allowed_tables())
+            except Exception:
+                allowed_tables = []
+            blocks = []
+            if dbt_text:
+                blocks.append(f"DBT metadata:\n{dbt_text}")
             if semantic_text:
-                content = f"{semantic_text}\n\n{content}"
-            user_msg.content = content
+                blocks.append(semantic_text)
+            if schema_text:
+                blocks.append(f"Use this schema:\n{schema_text}")
+            if allowed_tables:
+                blocks.append(
+                    "Oracle guardrails:\n"
+                    f"- Allowed tables only: {', '.join(allowed_tables)}\n"
+                    "- Do NOT use PRAGMA (SQLite-only).\n"
+                    "- Use SELECT/DESCRIBE/EXPLAIN; avoid invented table names."
+                )
+            if content:
+                blocks.append(f"Question: {content}")
+            user_msg.content = "\n\n".join(blocks)
 
         # Prompt size logging / limiting (protect system messages; trim oldest history first)
         system_msgs = [m for m in messages if getattr(m, "role", "") == "system"]
@@ -92,6 +143,7 @@ class LLMLog(LlmMiddleware):
 
         truncated = False
         if total_chars > LLM_MAX_PROMPT_CHARS and history_msgs:
+            truncated = True
             budget = max(LLM_MAX_PROMPT_CHARS - system_chars, 0)
             kept = []
             # keep most recent history first, trimming from the oldest
@@ -107,10 +159,34 @@ class LLMLog(LlmMiddleware):
                     m.content = content[-budget:] if budget > 0 else ""
                     budget = 0
                     kept.append(m)
-                    truncated = True
                     break
             history_msgs = list(reversed(kept))
             r.messages = system_msgs + history_msgs
+
+        if truncated:
+            # Hard fallback: drop old history to guarantee valid tool JSON
+            last_user_msg = next(
+                (m for m in reversed(messages) if getattr(m, "role", "") == "user"),
+                None,
+            )
+            fallback_msgs = list(system_msgs)
+            if last_user_msg:
+                question = getattr(last_user_msg, "content", "") or ""
+                schema_text = _collect_schema_text()
+                semantic_text = semantic_loader.build_context()
+                parts = []
+                if semantic_text:
+                    parts.append(semantic_text)
+                if schema_text:
+                    parts.append(f"Use this schema:\n{schema_text}")
+                if question:
+                    parts.append(f"Question: {question}")
+                parts.append(
+                    "Respond with a single JSON tool call only. Do not include prose or multiple calls."
+                )
+                last_user_msg.content = "\n\n".join(parts)
+                fallback_msgs.append(last_user_msg)
+            r.messages = fallback_msgs
         log_perf(
             perf_logger,
             "llm.prompt_size",

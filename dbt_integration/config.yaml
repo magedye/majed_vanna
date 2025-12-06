@@ -7,6 +7,12 @@ semantic_sources:
   - "./dbt_integration/vana_cbtcore.md"
   - "./dbt_integration/ready_files.md"
 
+# dbt artifact paths (optional; graceful fallback if missing)
+dbt_manifest_path: "./dbt/target/manifest.json"
+dbt_catalog_path: "./dbt/target/catalog.json"
+dbt_run_results_path: "./dbt/target/run_results.json"
+dbt_context_limit: 4000
+
 documentation_output_path: "./dbt_integration/docs/"
 documentation_formats:
   - "md"

@@ -7,12 +7,16 @@ destructive/unsupported verb blocking, and comment/tautology screening.
 import re
 from typing import Set
 
+from app.config import DB_PROVIDER
+
 
 class SQLValidationError(ValueError):
     """Raised when SQL fails basic safety validation."""
 
 
-ALLOWED_STATEMENTS: Set[str] = {"select", "with", "explain", "describe", "show", "pragma"}
+ALLOWED_STATEMENTS: Set[str] = {"select", "with", "explain", "describe", "show"}
+if DB_PROVIDER == "sqlite":
+    ALLOWED_STATEMENTS.add("pragma")
 DESTRUCTIVE_KEYWORDS = {"drop", "truncate", "alter", "delete", "update", "insert"}
 COMMENT_PATTERN = re.compile(r"--|/\\*")
 TAUTOLOGY_PATTERN = re.compile(r"\\b(or|and)\\s+1\\s*=\\s*1\\b", re.IGNORECASE)

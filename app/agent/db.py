@@ -1,8 +1,9 @@
+import asyncio
+import re
 import time
 from uuid import uuid4
 
 import pandas as pd
-import asyncio
 
 from vanna.capabilities.sql_runner import RunSqlToolArgs, SqlRunner
 from vanna.core.tool import ToolResult
@@ -101,9 +102,10 @@ def _build_oracle_runner():
         async def run_sql(self, args: RunSqlToolArgs, context: ToolContext) -> pd.DataFrame:
             if not db_circuit._can_pass():
                 raise RuntimeError("CircuitBreaker[db] is OPEN")
-            sql = args.sql.rstrip()
-            if sql.endswith(";"):
-                sql = sql[:-1]
+            sql = args.sql.strip()
+            sql = re.sub(r";\s*$", "", sql, flags=re.IGNORECASE)
+            # Normalize common non-Oracle syntax (LIMIT) to Oracle FETCH FIRST
+            sql = re.sub(r"\s+LIMIT\s+(\d+)\s*$", r" FETCH FIRST \1 ROWS ONLY", sql, flags=re.IGNORECASE)
             for attempt in range(DB_MAX_RETRIES + 1):
                 try:
                     async def _do_query():
@@ -140,7 +142,7 @@ def get_sql_runner():
             runner = _build_oracle_runner()
             if runner:
                 return runner
-            return None
+            raise RuntimeError("Oracle runner could not be initialized; check credentials or oracledb installation.")
         if DB_PROVIDER == "mssql":
             return MSSQLRunner(odbc_conn_str=DB_MSSQL_CONN)
     except Exception as e:
@@ -281,9 +283,43 @@ class SafeRunSqlTool(RunSqlTool):
         return result
 
 
+class SafeVisualizeDataTool(VisualizeDataTool):
+    """Gracefully handle missing/invalid files during visualization."""
+
+    async def execute(self, context: ToolContext, args):
+        try:
+            return await super().execute(context, args)
+        except FileNotFoundError as exc:
+            message = f"Visualization source not found: {exc}"
+            return ToolResult(
+                success=False,
+                result_for_llm=message,
+                ui_component=UiComponent(
+                    rich_component=NotificationComponent(
+                        type=ComponentType.NOTIFICATION, level="error", message=message
+                    ),
+                    simple_component=SimpleTextComponent(text=message),
+                ),
+                error=str(exc),
+            )
+        except Exception as exc:
+            message = f"Visualization failed: {exc}"
+            return ToolResult(
+                success=False,
+                result_for_llm=message,
+                ui_component=UiComponent(
+                    rich_component=NotificationComponent(
+                        type=ComponentType.NOTIFICATION, level="error", message=message
+                    ),
+                    simple_component=SimpleTextComponent(text=message),
+                ),
+                error=str(exc),
+            )
+
+
 # Phase 1.B: Use guarded RunSql tool to enforce SQL Safety Layer pre-checks.
 db_tool = SafeRunSqlTool(sql_runner=sql_runner)
-visualizer = VisualizeDataTool(file_system=LocalFileSystem())
+visualizer = SafeVisualizeDataTool(file_system=LocalFileSystem())
 
 
 TEST_QUERIES = {

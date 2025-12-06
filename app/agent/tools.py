@@ -15,7 +15,7 @@ from vanna.tools.agent_memory import (
     SaveTextMemoryTool,
 )
 from vanna.tools import VisualizeDataTool
-from app.agent.db import db_tool
+from app.agent.db import db_tool, sql_runner, SafeRunSqlTool
 import requests
 
 
@@ -85,6 +85,14 @@ visualizer = _safe_chart_tool()
 
 tool_registry = ToolRegistry()
 tool_registry.register_local_tool(db_tool, access_groups=["admin", "user"])
+
+# Alias to tolerate LLM requesting 'execute_sql' tool name
+class ExecuteSqlTool(SafeRunSqlTool):
+    name = "execute_sql"
+
+
+execute_sql_tool = ExecuteSqlTool(sql_runner=sql_runner)
+tool_registry.register_local_tool(execute_sql_tool, access_groups=["admin", "user"])
 tool_registry.register_local_tool(visualizer, access_groups=["admin", "user"])
 tool_registry.register_local_tool(SaveQuestionToolArgsTool(), access_groups=["admin"])
 tool_registry.register_local_tool(SearchSavedCorrectToolUsesTool(), access_groups=["admin", "user"])

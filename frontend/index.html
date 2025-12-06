@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vanna AI Chat</title>
+  <link rel="stylesheet" href="/frontend-static/main.css">
+  <script src="/frontend-static/vanna-components.js" type="module"></script>
+  <script src="/frontend-static/main.js" defer></script>
+</head>
+<body>
+  <div id="page">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Data-First Agents</p>
+        <h1>Vanna Agents</h1>
+        <p class="sub">Secure chat with your Oracle data.</p>
+      </div>
+      <div class="status-pill" id="connection-status">Checking...</div>
+    </header>
+
+    <section id="auth-panel">
+      <h2>Login to Continue</h2>
+      <form id="login-form">
+        <label>Email Address</label>
+        <select id="email-select" required>
+          <option value="" disabled selected>Select an email…</option>
+          <option value="admin@example.com">admin@example.com</option>
+          <option value="user@example.com">user@example.com</option>
+        </select>
+        <button type="submit">Continue</button>
+        <p class="hint">Demo mode: email is stored as a cookie and sent with API requests.</p>
+      </form>
+    </section>
+
+    <section id="chat-panel" class="hidden">
+      <vanna-chat
+        sse-endpoint="/api/vanna/v2/chat_sse"
+        ws-endpoint="/api/vanna/v2/chat_websocket"
+        poll-endpoint="/api/vanna/v2/chat_poll"
+        api-base=""
+        debug="true">
+      </vanna-chat>
+    </section>
+  </div>
+</body>
+</html>

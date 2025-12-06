@@ -3,8 +3,17 @@ import sys
 from pathlib import Path
 from typing import Any, Dict
 from contextlib import asynccontextmanager
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, HTMLResponse
+from fastapi import Request
+from fastapi.routing import APIRoute
 from starlette.middleware.base import BaseHTTPMiddleware
+
+# Force UTF-8 stdout/stderr to avoid Windows charmap issues with Unicode logs
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    pass
 
 ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
@@ -64,7 +73,32 @@ def start():
     server = VannaFastAPIServer(agent=agent, config=config)
     server.chat_handler = SafeChatHandler(agent)
     app = server.create_app()
+    frontend_dir = ROOT / "frontend"
+    static_dir = frontend_dir / "static"
+    app.mount("/frontend-static", StaticFiles(directory=static_dir), name="frontend-static")
     app.mount("/charts", StaticFiles(directory="app/static/charts"), name="charts")
+    # Force frontend index to take precedence over default root
+    async def frontend_index(request: Request):
+        html_path = frontend_dir / "index.html"
+        if not html_path.exists():
+            return HTMLResponse(
+                content="<h1>Frontend missing</h1><p>Create frontend/index.html</p>",
+                media_type="text/html; charset=utf-8",
+            )
+        html = html_path.read_text(encoding="utf-8")
+        return HTMLResponse(content=html, media_type="text/html; charset=utf-8")
+
+    app.router.routes.insert(
+        0,
+        APIRoute(
+            path="/",
+            endpoint=frontend_index,
+            methods=["GET"],
+            response_class=HTMLResponse,
+            include_in_schema=False,
+            name="frontend-index",
+        ),
+    )
     app.add_middleware(PayloadLimitMiddleware)
     app.add_middleware(JsonErrorMiddleware)
     app.add_middleware(TraceContextMiddleware)
@@ -98,7 +132,10 @@ def start():
     print(f"  Environment: {'debug' if DEBUG else 'production'}")
     print(f"  Host/Port: {HOST}:{port}")
     print(f"  LLM Provider: {LLM_PROVIDER} ({model_name})")
-    print(f"  DB Provider: {DB_PROVIDER} (sqlite path={DB_SQLITE if DB_PROVIDER == 'sqlite' else 'n/a'})")
+    from app.agent.db import sql_runner  # late import to reflect init result
+    db_status = "ready" if sql_runner else "not-initialized"
+    sqlite_note = DB_SQLITE if DB_PROVIDER == "sqlite" else "n/a"
+    print(f"  DB Provider: {DB_PROVIDER} (status={db_status}, sqlite path={sqlite_note})")
 
     async def lifespan(app):
         try:

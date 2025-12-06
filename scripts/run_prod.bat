@@ -2,6 +2,10 @@
 setlocal EnableExtensions EnableDelayedExpansion
 pushd "%~dp0.."
 
+REM === Force UTF-8 console/encoding to avoid charmap errors ===
+chcp 65001 >nul
+set PYTHONUTF8=1
+
 REM === Configure Port (defaults to 7777) ===
 if "%APP_PORT%"=="" set "APP_PORT=7777"
 echo Launching Server on Strict Port %APP_PORT%...

@@ -6,6 +6,7 @@ from typing import List, Tuple
 class SemanticContextLoader:
     def __init__(self, config_path: Path = Path(__file__).parent.absolute() / "config.yaml"):
         self.config_path = Path(config_path)
+        # Source-anchored path resolution so pytest / runtime cwd never break loading
         self.base_path = Path(__file__).parent.resolve()
         self.config = self._load_config()
         self.sources = self._resolve_sources()
@@ -26,6 +27,11 @@ class SemanticContextLoader:
                 candidate = Path(p)
                 if not candidate.is_absolute():
                     candidate = (self.base_path / p).resolve()
+                # Handle historical "./dbt_integration/..." entries that double-prefix the folder
+                if not candidate.exists():
+                    alt = (self.base_path / Path(p).name).resolve()
+                    if alt.exists():
+                        candidate = alt
                 if candidate.exists():
                     paths.append(candidate)
         else:
